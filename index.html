@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein erstes Projekt</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Mein Projekt</div>
+            <ul>
+                <li><a href="#home">Start</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Kontakt</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <h1>Willkommen auf meiner Webseite</h1>
+            <p>Dies ist mein erstes Webprojekt.</p>
+            <button id="cta-button">Mehr erfahren</button>
+        </section>
+
+        <section id="about" class="about">
+            <h2>About</h2>
+            <div class="cards">
+                <div class="card">
+                    <h3>Design</h3>
+                    <p>Modernes und responsives Design, das auf allen Geraeten gut aussieht.</p>
+                </div>
+                <div class="card">
+                    <h3>Technik</h3>
+                    <p>Gebaut mit HTML, CSS und JavaScript - den Grundlagen des Webs.</p>
+                </div>
+                <div class="card">
+                    <h3>Leidenschaft</h3>
+                    <p>Mit Begeisterung fuer Webentwicklung erstellt.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <h2>Kontakt</h2>
+            <form id="contact-form">
+                <input type="text" placeholder="Name" required>
+                <input type="email" placeholder="E-Mail" required>
+                <textarea placeholder="Nachricht" required></textarea>
+                <button type="submit">Absenden</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mein erstes Projekt</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
