@@ -3,60 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mein erstes Projekt</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">Mein Projekt</div>
-            <ul>
-                <li><a href="#home">Start</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Kontakt</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <main>
-        <section id="home" class="hero">
-            <h1>Willkommen auf meiner Webseite</h1>
-            <p>Dies ist mein erstes Webprojekt.</p>
-            <button id="cta-button">Mehr erfahren</button>
-        </section>
-
-        <section id="about" class="about">
-            <h2>About</h2>
-            <div class="cards">
-                <div class="card">
-                    <h3>Design</h3>
-                    <p>Modernes und responsives Design, das auf allen Geraeten gut aussieht.</p>
-                </div>
-                <div class="card">
-                    <h3>Technik</h3>
-                    <p>Gebaut mit HTML, CSS und JavaScript - den Grundlagen des Webs.</p>
-                </div>
-                <div class="card">
-                    <h3>Leidenschaft</h3>
-                    <p>Mit Begeisterung fuer Webentwicklung erstellt.</p>
-                </div>
+    <!-- Login View -->
+    <div id="view-login" class="auth-view">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="auth-logo">Dashboard</div>
+                <p>Melde dich an, um fortzufahren</p>
             </div>
-        </section>
-
-        <section id="contact" class="contact">
-            <h2>Kontakt</h2>
-            <form id="contact-form">
-                <input type="text" placeholder="Name" required>
-                <input type="email" placeholder="E-Mail" required>
-                <textarea placeholder="Nachricht" required></textarea>
-                <button type="submit">Absenden</button>
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-email">E-Mail</label>
+                    <input type="email" id="login-email" placeholder="name@beispiel.de" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Passwort</label>
+                    <input type="password" id="login-password" placeholder="Dein Passwort" required>
+                </div>
+                <div id="login-error" class="form-error" hidden></div>
+                <button type="submit" class="btn btn-primary btn-block">Anmelden</button>
             </form>
-        </section>
-    </main>
+            <div class="auth-footer">
+                Noch kein Konto? <a href="#" id="show-register">Jetzt registrieren</a>
+            </div>
+        </div>
+    </div>
 
-    <footer>
-        <p>&copy; 2026 Mein erstes Projekt</p>
-    </footer>
+    <!-- Register View -->
+    <div id="view-register" class="auth-view" hidden>
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="auth-logo">Dashboard</div>
+                <p>Erstelle ein neues Konto</p>
+            </div>
+            <form id="register-form" class="auth-form">
+                <div class="form-group">
+                    <label for="register-name">Name</label>
+                    <input type="text" id="register-name" placeholder="Dein Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">E-Mail</label>
+                    <input type="email" id="register-email" placeholder="name@beispiel.de" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Passwort</label>
+                    <input type="password" id="register-password" placeholder="Mindestens 8 Zeichen" minlength="8" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password-confirm">Passwort bestätigen</label>
+                    <input type="password" id="register-password-confirm" placeholder="Passwort wiederholen" minlength="8" required>
+                </div>
+                <div id="register-error" class="form-error" hidden></div>
+                <button type="submit" class="btn btn-primary btn-block">Registrieren</button>
+            </form>
+            <div class="auth-footer">
+                Bereits ein Konto? <a href="#" id="show-login">Zur Anmeldung</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="view-dashboard" hidden>
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">Dashboard</span>
+                <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Sidebar schliessen">&times;</button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link active" data-page="overview">
+                    <span class="sidebar-icon">&#9632;</span> Uebersicht
+                </a>
+                <a href="#" class="sidebar-link" data-page="data-sources">
+                    <span class="sidebar-icon">&#9881;</span> Datenquellen
+                </a>
+                <a href="#" class="sidebar-link" data-page="settings">
+                    <span class="sidebar-icon">&#9998;</span> Einstellungen
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar">U</div>
+                    <div class="user-details">
+                        <span id="user-name" class="user-name">Benutzer</span>
+                        <span id="user-email" class="user-email">email@beispiel.de</span>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn btn-outline btn-sm">Abmelden</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-wrapper">
+            <header class="topbar">
+                <button id="menu-btn" class="menu-btn" aria-label="Menu oeffnen">&#9776;</button>
+                <h1 id="page-title" class="topbar-title">Uebersicht</h1>
+                <div class="topbar-actions">
+                    <span id="topbar-user" class="topbar-user"></span>
+                </div>
+            </header>
+
+            <main class="content">
+                <!-- Overview Page -->
+                <div id="page-overview" class="page">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Datenquellen</div>
+                            <div class="stat-value" id="stat-sources">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Widgets</div>
+                            <div class="stat-value" id="stat-widgets">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Letztes Update</div>
+                            <div class="stat-value stat-value-sm" id="stat-updated">--</div>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h2>Meine Widgets</h2>
+                        <button id="add-widget-btn" class="btn btn-primary btn-sm">+ Widget hinzufuegen</button>
+                    </div>
+
+                    <div id="widgets-container" class="widgets-grid">
+                        <div class="empty-state" id="empty-widgets">
+                            <div class="empty-icon">&#128202;</div>
+                            <h3>Noch keine Widgets</h3>
+                            <p>Fuege dein erstes Widget hinzu, um Daten aus deinen Quellen anzuzeigen.</p>
+                            <button class="btn btn-primary" onclick="document.getElementById('add-widget-btn').click()">Widget hinzufuegen</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Sources Page -->
+                <div id="page-data-sources" class="page" hidden>
+                    <div class="section-header">
+                        <h2>Datenquellen</h2>
+                        <button id="add-source-btn" class="btn btn-primary btn-sm">+ Quelle hinzufuegen</button>
+                    </div>
+                    <div id="sources-container">
+                        <div class="empty-state" id="empty-sources">
+                            <div class="empty-icon">&#128268;</div>
+                            <h3>Keine Datenquellen</h3>
+                            <p>Verbinde deine erste Datenquelle, um Informationen ins Dashboard zu ziehen.</p>
+                            <button class="btn btn-primary" onclick="document.getElementById('add-source-btn').click()">Quelle hinzufuegen</button>
+                        </div>
+                    </div>
+                    <div id="sources-list" class="sources-list" hidden></div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="page-settings" class="page" hidden>
+                    <h2>Einstellungen</h2>
+                    <div class="settings-section">
+                        <h3>Profil</h3>
+                        <form id="settings-form" class="settings-form">
+                            <div class="form-group">
+                                <label for="settings-name">Name</label>
+                                <input type="text" id="settings-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="settings-email">E-Mail</label>
+                                <input type="email" id="settings-email" disabled>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">Speichern</button>
+                        </form>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Konto</h3>
+                        <p class="text-muted">Hier kannst du dein Passwort aendern oder dein Konto verwalten.</p>
+                        <button id="change-password-btn" class="btn btn-outline btn-sm">Passwort aendern</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal: Add Widget -->
+    <div id="modal-widget" class="modal-overlay" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Widget hinzufuegen</h3>
+                <button class="modal-close" data-close="modal-widget">&times;</button>
+            </div>
+            <form id="widget-form" class="modal-body">
+                <div class="form-group">
+                    <label for="widget-title">Titel</label>
+                    <input type="text" id="widget-title" placeholder="z.B. Umsatz heute" required>
+                </div>
+                <div class="form-group">
+                    <label for="widget-type">Typ</label>
+                    <select id="widget-type" required>
+                        <option value="number">Zahlenwert</option>
+                        <option value="text">Textnotiz</option>
+                        <option value="list">Liste</option>
+                        <option value="chart">Diagramm (Platzhalter)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="widget-content">Inhalt / Wert</label>
+                    <textarea id="widget-content" rows="3" placeholder="Wert oder Text eingeben"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="widget-color">Farbe</label>
+                    <select id="widget-color">
+                        <option value="default">Standard</option>
+                        <option value="blue">Blau</option>
+                        <option value="green">Gruen</option>
+                        <option value="orange">Orange</option>
+                        <option value="red">Rot</option>
+                        <option value="purple">Lila</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" data-close="modal-widget">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Hinzufuegen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Data Source -->
+    <div id="modal-source" class="modal-overlay" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Datenquelle hinzufuegen</h3>
+                <button class="modal-close" data-close="modal-source">&times;</button>
+            </div>
+            <form id="source-form" class="modal-body">
+                <div class="form-group">
+                    <label for="source-name">Name</label>
+                    <input type="text" id="source-name" placeholder="z.B. Google Analytics" required>
+                </div>
+                <div class="form-group">
+                    <label for="source-type">Typ</label>
+                    <select id="source-type" required>
+                        <option value="api">API / REST</option>
+                        <option value="csv">CSV / Datei</option>
+                        <option value="database">Datenbank</option>
+                        <option value="manual">Manuell</option>
+                        <option value="other">Sonstiges</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="source-url">URL / Endpunkt (optional)</label>
+                    <input type="text" id="source-url" placeholder="https://api.beispiel.de/daten">
+                </div>
+                <div class="form-group">
+                    <label for="source-notes">Notizen</label>
+                    <textarea id="source-notes" rows="2" placeholder="Zusaetzliche Infos"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" data-close="modal-source">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Hinzufuegen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Change Password -->
+    <div id="modal-password" class="modal-overlay" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Passwort aendern</h3>
+                <button class="modal-close" data-close="modal-password">&times;</button>
+            </div>
+            <form id="password-form" class="modal-body">
+                <div class="form-group">
+                    <label for="current-password">Aktuelles Passwort</label>
+                    <input type="password" id="current-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-password">Neues Passwort</label>
+                    <input type="password" id="new-password" minlength="8" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-new-password">Neues Passwort bestätigen</label>
+                    <input type="password" id="confirm-new-password" minlength="8" required>
+                </div>
+                <div id="password-error" class="form-error" hidden></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" data-close="modal-password">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Passwort aendern</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
