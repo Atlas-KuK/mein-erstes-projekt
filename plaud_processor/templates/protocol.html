@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ template.label }} – {{ recording.title or recording.filename }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="/recording/{{ recording.id }}" class="back-link">← Zurück zur Aufnahme</a>
+    <h1>{{ template.icon }} {{ template.label }}</h1>
+    <p class="page-subtitle">{{ recording.title or recording.filename }}</p>
+  </div>
+  <div class="header-actions">
+    {% if protocol.pdf_path %}
+    <a href="/recording/{{ recording.id }}/protocol/{{ template.key }}/pdf"
+       class="btn btn-primary" download>PDF herunterladen ↓</a>
+    {% endif %}
+    <button class="btn btn-secondary" onclick="window.print()">Drucken</button>
+  </div>
+</div>
+
+<div class="protocol-document">
+  {{ protocol.content_html | safe }}
+</div>
+{% endblock %}

@@ -3,16 +3,15 @@ Plaud Processor – Hauptprogramm
 
 Ablauf für jede neue Aufnahme:
   1. Audiodatei von Plaud.ai holen (API oder Ordner-Watch)
-  2. Transkription via OpenAI Whisper
-  3. KI-Analyse via Claude (Anthropic)
-  4. PDF-Bericht erstellen
-  5. PDF nach OneDrive hochladen
+  2. Transkription via OpenAI Whisper (inkl. Sprecher-Erkennung)
+  3. In Datenbank speichern (für Web-UI)
+  4. KI-Analyse via Claude → Zusammenfassungs-PDF
+  5. PDF in Ausgabe-Ordner (OneDrive synct automatisch)
   6. E-Mail-Benachrichtigung senden (max. 1x / Stunde)
 
 Ausführung:
   python main.py              # einmaliger Lauf
   python main.py --loop       # dauerhafter Polling-Betrieb
-  python main.py --once       # gleichbedeutend mit Standard (kein Loop)
 """
 from __future__ import annotations
 
@@ -22,18 +21,18 @@ import sys
 import time
 from pathlib import Path
 
-# Module dieses Projekts
 import analyzer
 import email_notifier
 import pdf_generator
 import plaud_client
+import storage
 import transcriber
 from config import POLL_INTERVAL_SECONDS, WORK_DIR
 from email_notifier import NotificationItem, queue_notification
 from onedrive_client import OneDriveError, upload_to_onedrive
 
 # ---------------------------------------------------------------------------
-# Logging einrichten
+# Logging
 # ---------------------------------------------------------------------------
 
 LOG_FILE = WORK_DIR / "plaud_processor.log"
@@ -55,35 +54,44 @@ log = logging.getLogger("main")
 # ---------------------------------------------------------------------------
 
 def process_recording(recording: plaud_client.Recording) -> bool:
-    """
-    Verarbeitet eine einzelne Aufnahme vollständig.
-    Gibt True zurück, wenn die Verarbeitung erfolgreich war.
-    """
     log.info("━━━ Verarbeite: %s ━━━", recording.title)
+
+    # In DB registrieren
+    rec_id = storage.upsert_recording(
+        filename=recording.local_path.name,
+        title=recording.title,
+        audio_path=str(recording.local_path),
+        created_at=recording.created_at,
+        duration=recording.duration_seconds,
+    )
+    storage.set_recording_status(rec_id, "processing")
 
     # 1. Transkription
     try:
         log.info("  ▶ Transkription …")
-        transcript = transcriber.transcribe(recording.local_path)
-        log.info("  ✓ Transkript (%d Wörter)", len(transcript.split()))
+        transcript_text, segments = transcriber.transcribe(recording.local_path)
+        log.info("  ✓ Transkript (%d Wörter, %d Segmente)",
+                 len(transcript_text.split()), len(segments))
+        storage.save_transcript(rec_id, transcript_text, segments)
     except Exception as exc:
         log.error("  ✗ Transkription fehlgeschlagen: %s", exc)
+        storage.set_recording_status(rec_id, "error")
         return False
 
-    # 2. KI-Analyse
+    # 2. KI-Analyse (für automatisches Zusammenfassungs-PDF)
     try:
         log.info("  ▶ KI-Analyse …")
-        result = analyzer.analyze(transcript, recording.title)
-        log.info("  ✓ Analyse abgeschlossen (Titel: %s)", result.title)
+        result = analyzer.analyze(transcript_text, recording.title)
+        log.info("  ✓ Analyse: %s", result.title)
+        result.raw_transcript = transcript_text
     except Exception as exc:
         log.error("  ✗ Analyse fehlgeschlagen: %s", exc)
-        # Fallback: minimales Ergebnis
         result = analyzer.AnalysisResult(
             title=recording.title,
-            raw_transcript=transcript,
+            raw_transcript=transcript_text,
         )
 
-    # 3. PDF erstellen
+    # 3. Zusammenfassungs-PDF erstellen
     try:
         log.info("  ▶ PDF wird erstellt …")
         pdf_path = pdf_generator.generate_pdf(
@@ -94,40 +102,37 @@ def process_recording(recording: plaud_client.Recording) -> bool:
         log.info("  ✓ PDF: %s", pdf_path.name)
     except Exception as exc:
         log.error("  ✗ PDF-Erstellung fehlgeschlagen: %s", exc)
-        return False
+        pdf_path = None
 
-    # 4. OneDrive Upload
-    onedrive_url = ""
-    try:
-        log.info("  ▶ OneDrive Upload …")
-        onedrive_url = upload_to_onedrive(pdf_path)
-        log.info("  ✓ OneDrive: %s", onedrive_url)
-    except OneDriveError as exc:
-        log.error("  ✗ OneDrive Upload fehlgeschlagen: %s", exc)
-        # Nicht kritisch – PDF ist lokal vorhanden
-    except Exception as exc:
-        log.error("  ✗ Unerwarteter OneDrive-Fehler: %s", exc)
+    # 4. Ausgabe-Ordner (OneDrive)
+    output_url = ""
+    if pdf_path:
+        try:
+            log.info("  ▶ Speichern in Ausgabe-Ordner …")
+            output_url = upload_to_onedrive(pdf_path)
+            log.info("  ✓ Gespeichert: %s", output_url)
+        except Exception as exc:
+            log.error("  ✗ Ausgabe fehlgeschlagen: %s", exc)
 
-    # 5. E-Mail benachrichtigen
+    # 5. E-Mail
     try:
         item = NotificationItem(
             title=result.title,
-            onedrive_url=onedrive_url,
-            pdf_filename=pdf_path.name,
+            onedrive_url=output_url,
+            pdf_filename=pdf_path.name if pdf_path else "",
             recorded_at=recording.created_at,
         )
         queue_notification(item)
     except Exception as exc:
-        log.error("  ✗ E-Mail-Benachrichtigung fehlgeschlagen: %s", exc)
+        log.error("  ✗ E-Mail fehlgeschlagen: %s", exc)
 
-    # 6. Als verarbeitet markieren
+    storage.set_recording_status(rec_id, "done")
     plaud_client.mark_as_processed(recording)
-    log.info("  ✓ Aufnahme %s als verarbeitet markiert", recording.id)
+    log.info("  ✓ Fertig – Web-UI: http://localhost:8080/recording/%d", rec_id)
     return True
 
 
 def run_once() -> int:
-    """Einmaliger Lauf – gibt die Anzahl verarbeiteter Aufnahmen zurück."""
     log.info("Suche nach neuen Plaud-Aufnahmen …")
     recordings = plaud_client.fetch_new_recordings()
 
@@ -136,25 +141,15 @@ def run_once() -> int:
         return 0
 
     log.info("%d neue Aufnahme(n) gefunden.", len(recordings))
-    success = 0
-    for rec in recordings:
-        if process_recording(rec):
-            success += 1
-
-    # Ausstehende E-Mails leeren
+    success = sum(1 for rec in recordings if process_recording(rec))
     email_notifier.flush_queue()
-
-    log.info("Fertig: %d/%d Aufnahmen erfolgreich verarbeitet.", success, len(recordings))
+    log.info("Fertig: %d/%d erfolgreich.", success, len(recordings))
     return success
 
 
 def run_loop() -> None:
-    """Dauerhafter Polling-Betrieb."""
-    log.info(
-        "Plaud Processor gestartet (Polling alle %d Sekunden). "
-        "Abbruch mit Ctrl+C.",
-        POLL_INTERVAL_SECONDS,
-    )
+    log.info("Plaud Processor gestartet (Polling alle %ds). Abbruch mit Ctrl+C.",
+             POLL_INTERVAL_SECONDS)
     try:
         while True:
             run_once()
@@ -164,25 +159,18 @@ def run_loop() -> None:
         log.info("Plaud Processor beendet.")
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
-
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Plaud Processor – Audiodateien transkribieren, analysieren und als PDF exportieren"
+        description="Plaud Processor – Audio transkribieren, analysieren, als PDF exportieren"
     )
-    parser.add_argument(
-        "--loop", action="store_true",
-        help=f"Dauerhafter Polling-Betrieb (alle {POLL_INTERVAL_SECONDS}s)",
-    )
+    parser.add_argument("--loop", action="store_true",
+                        help=f"Dauerhafter Polling-Betrieb (alle {POLL_INTERVAL_SECONDS}s)")
     args = parser.parse_args()
 
     if args.loop:
         run_loop()
     else:
-        count = run_once()
-        sys.exit(0 if count >= 0 else 1)
+        sys.exit(0 if run_once() >= 0 else 1)
 
 
 if __name__ == "__main__":

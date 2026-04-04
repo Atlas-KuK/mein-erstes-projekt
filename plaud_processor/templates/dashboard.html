@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Aufnahmen – Plaud Processor{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Aufnahmen</h1>
+    <p class="page-subtitle">{{ total }} Aufnahme{{ 'n' if total != 1 else '' }} insgesamt</p>
+  </div>
+</div>
+
+{% if recordings %}
+<div class="recordings-grid">
+  {% for rec in recordings %}
+  <a href="/recording/{{ rec.id }}" class="recording-card status-{{ rec.status }}">
+    <div class="card-icon">
+      {% if rec.status == 'done' %}✅
+      {% elif rec.status == 'transcribed' %}📝
+      {% elif rec.status == 'error' %}❌
+      {% else %}⏳{% endif %}
+    </div>
+    <div class="card-body">
+      <div class="card-title">{{ rec.title or rec.filename }}</div>
+      <div class="card-meta">
+        <span>{{ rec.created_at[:10] if rec.created_at else '–' }}</span>
+        <span class="status-badge status-{{ rec.status }}">
+          {% if rec.status == 'done' %}Fertig
+          {% elif rec.status == 'transcribed' %}Transkribiert
+          {% elif rec.status == 'error' %}Fehler
+          {% else %}Ausstehend{% endif %}
+        </span>
+      </div>
+    </div>
+    <div class="card-arrow">→</div>
+  </a>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">🎙️</div>
+  <h2>Noch keine Aufnahmen</h2>
+  <p>Legen Sie Audiodateien in Ihren Plaud-Aufnahmen-Ordner.</p>
+  <p>Der Prozessor erkennt sie automatisch alle 5 Minuten.</p>
+</div>
+{% endif %}
+{% endblock %}

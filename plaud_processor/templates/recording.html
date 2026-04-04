@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}{{ recording.title or recording.filename }} – Plaud Processor{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="/" class="back-link">← Alle Aufnahmen</a>
+    <h1>{{ recording.title or recording.filename }}</h1>
+    <p class="page-subtitle">{{ recording.created_at[:16].replace('T',' ') if recording.created_at else '' }}</p>
+  </div>
+</div>
+
+<div class="recording-layout">
+
+  <!-- ── LINKE SPALTE: Transkript ─────────────────────────────── -->
+  <div class="transcript-panel">
+    <div class="panel-header">
+      <h2>Transkript</h2>
+      {% if transcript %}
+      <button class="btn btn-sm btn-secondary" onclick="saveSegments()">Sprecher speichern</button>
+      {% endif %}
+    </div>
+
+    {% if transcript %}
+    <div id="segments-container">
+      {% if transcript.segments %}
+        {% for seg in transcript.segments %}
+        <div class="segment" data-index="{{ loop.index0 }}">
+          <div class="segment-header">
+            <div class="speaker-select-wrap">
+              <select class="speaker-select" onchange="onSpeakerChange(this, {{ loop.index0 }})">
+                <option value="">Sprecher wählen…</option>
+                {% for sp in speakers %}
+                <option value="{{ sp.name }}" {% if seg.speaker == sp.name %}selected{% endif %}>
+                  {{ sp.name }}
+                </option>
+                {% endfor %}
+                <option value="{{ seg.speaker }}" {% if seg.speaker and seg.speaker not in speakers|map(attribute='name')|list %}selected{% endif %}>
+                  {{ seg.speaker if seg.speaker else '' }}
+                </option>
+                <option value="__new__">+ Neuen Sprecher…</option>
+              </select>
+            </div>
+          </div>
+          <div class="segment-text">{{ seg.text }}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="transcript-raw">{{ transcript.raw_text }}</div>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state small">
+      <p>⏳ Transkript wird noch erstellt…</p>
+      <p>Bitte warten Sie einige Minuten.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── RECHTE SPALTE: Aktionen ──────────────────────────────── -->
+  <div class="actions-panel">
+
+    <!-- Protokoll erstellen -->
+    <div class="panel-card">
+      <h3>Protokoll erstellen</h3>
+      <p class="hint">Wählen Sie eine Vorlage und klicken Sie auf Generieren.</p>
+
+      <div class="template-grid">
+        {% for tmpl in templates %}
+        <label class="template-option">
+          <input type="radio" name="template" value="{{ tmpl.key }}"
+                 {% if loop.first %}checked{% endif %}>
+          <div class="template-card">
+            <span class="template-icon">{{ tmpl.icon }}</span>
+            <span class="template-label">{{ tmpl.label }}</span>
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+
+      <button class="btn btn-primary btn-block" onclick="generateProtocol()"
+              {% if not transcript %}disabled{% endif %}>
+        <span id="gen-label">Protokoll generieren</span>
+      </button>
+      <div id="gen-status" class="gen-status"></div>
+    </div>
+
+    <!-- Vorhandene Protokolle -->
+    {% if protocols %}
+    <div class="panel-card">
+      <h3>Generierte Protokolle</h3>
+      {% for proto in protocols %}
+      <div class="protocol-entry">
+        <div class="protocol-info">
+          <span class="protocol-type">
+            {% for tmpl in templates %}{% if tmpl.key == proto.template_type %}{{ tmpl.icon }} {{ tmpl.label }}{% endif %}{% endfor %}
+          </span>
+          <span class="protocol-date">{{ proto.created_at[:16].replace('T',' ') }}</span>
+        </div>
+        <div class="protocol-actions">
+          <a href="/recording/{{ recording.id }}/protocol/{{ proto.template_type }}"
+             class="btn btn-sm btn-secondary" target="_blank">Ansehen</a>
+          {% if proto.pdf_path %}
+          <a href="/recording/{{ recording.id }}/protocol/{{ proto.template_type }}/pdf"
+             class="btn btn-sm btn-primary" download>PDF ↓</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Sprecher verwalten -->
+    <div class="panel-card">
+      <h3>Bekannte Sprecher</h3>
+      <div id="speaker-list">
+        {% for sp in speakers %}
+        <div class="speaker-chip">{{ sp.name }}</div>
+        {% endfor %}
+      </div>
+      <div class="speaker-add">
+        <input type="text" id="new-speaker-input" placeholder="Neuer Sprecher…" class="input-sm">
+        <button class="btn btn-sm btn-secondary" onclick="addSpeaker()">Hinzufügen</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const RECORDING_ID = {{ recording.id }};
+  let segments = {{ transcript.segments | tojson if transcript else '[]' }};
+</script>
+{% endblock %}

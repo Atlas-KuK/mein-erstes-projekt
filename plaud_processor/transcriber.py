@@ -22,10 +22,11 @@ class TranscriptionError(Exception):
     pass
 
 
-def transcribe(audio_path: Path) -> str:
+def transcribe(audio_path: Path) -> tuple[str, list]:
     """
-    Transkribiert eine Audiodatei und gibt den Text zurück.
-    Versucht zuerst die OpenAI Whisper API, dann das lokale CLI.
+    Transkribiert eine Audiodatei.
+    Gibt (text, segments) zurück.
+    segments = [{"text": "...", "speaker": "Sprecher A", "start": 0.0, "end": 3.5}, ...]
     """
     if not audio_path.exists():
         raise FileNotFoundError(f"Audiodatei nicht gefunden: {audio_path}")
@@ -34,11 +35,12 @@ def transcribe(audio_path: Path) -> str:
         return _transcribe_via_api(audio_path)
     else:
         log.warning("OPENAI_API_KEY nicht gesetzt – versuche lokales Whisper-CLI")
-        return _transcribe_via_cli(audio_path)
+        text = _transcribe_via_cli(audio_path)
+        return text, _split_into_segments(text)
 
 
-def _transcribe_via_api(audio_path: Path) -> str:
-    """Nutzt die OpenAI Whisper REST-API."""
+def _transcribe_via_api(audio_path: Path) -> tuple[str, list]:
+    """Nutzt die OpenAI Whisper REST-API mit verbose_json für Segmente."""
     try:
         from openai import OpenAI
     except ImportError:
@@ -51,17 +53,20 @@ def _transcribe_via_api(audio_path: Path) -> str:
     file_size = audio_path.stat().st_size
     if file_size > MAX_FILE_SIZE_BYTES:
         log.info("Datei %.1f MB – wird in Segmente aufgeteilt", file_size / 1024 / 1024)
-        return _transcribe_large_file(audio_path, client)
+        text = _transcribe_large_file(audio_path, client)
+        return text, _split_into_segments(text)
 
     log.info("Transkribiere via API: %s", audio_path.name)
-    kwargs: dict = {"model": WHISPER_MODEL}
+    kwargs: dict = {"model": WHISPER_MODEL, "response_format": "verbose_json"}
     if TRANSCRIPTION_LANGUAGE:
         kwargs["language"] = TRANSCRIPTION_LANGUAGE
 
     with open(audio_path, "rb") as fh:
         response = client.audio.transcriptions.create(file=fh, **kwargs)
 
-    return response.text
+    raw_segments = getattr(response, "segments", None) or []
+    segments = _assign_speakers(raw_segments, response.text)
+    return response.text, segments
 
 
 def _transcribe_large_file(audio_path: Path, client) -> str:
@@ -132,3 +137,95 @@ def _transcribe_via_cli(audio_path: Path) -> str:
         return txt_file.read_text(encoding="utf-8")
 
     raise TranscriptionError("Whisper-CLI hat keine Ausgabedatei erzeugt")
+
+
+# ---------------------------------------------------------------------------
+# Sprecher-Erkennung (heuristisch via Claude)
+# ---------------------------------------------------------------------------
+
+def _assign_speakers(raw_segments: list, full_text: str) -> list:
+    """
+    Versucht Sprecherwechsel via Claude zu erkennen.
+    Gibt Segmente mit speaker-Feld zurück.
+    Fallback: einfache Absatz-Aufteilung mit generischen Namen.
+    """
+    from config import ANTHROPIC_API_KEY, CLAUDE_MODEL
+
+    # Basis-Segmente aus Whisper aufbereiten
+    base = []
+    for s in raw_segments:
+        text = s.get("text", "").strip() if isinstance(s, dict) else getattr(s, "text", "").strip()
+        if not text:
+            continue
+        start = s.get("start", 0) if isinstance(s, dict) else getattr(s, "start", 0)
+        end   = s.get("end",   0) if isinstance(s, dict) else getattr(s, "end",   0)
+        base.append({"text": text, "start": float(start), "end": float(end), "speaker": ""})
+
+    if not base:
+        return _split_into_segments(full_text)
+
+    if not ANTHROPIC_API_KEY:
+        return _generic_speaker_labels(base)
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+        # Nur ersten 3000 Zeichen analysieren (Kosten sparen)
+        sample = full_text[:3000]
+        message = client.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=1024,
+            system="Du erkennst Sprecherwechsel in Transkripten. Antworte NUR mit JSON.",
+            messages=[{"role": "user", "content": f"""Analysiere dieses Transkript und erkenne Sprecherwechsel.
+Gib für jeden der {len(base)} Sätze einen Sprecher an (Sprecher A, Sprecher B, etc.).
+Antworte mit einem JSON-Array der gleichen Länge wie die Eingabe:
+[{{"speaker": "Sprecher A"}}, {{"speaker": "Sprecher B"}}, ...]
+
+Transkript-Sätze:
+{chr(10).join(f'{i+1}. {s["text"]}' for i,s in enumerate(base[:50]))}"""}],
+        )
+
+        import json, re
+        raw = message.content[0].text.strip()
+        raw = re.sub(r"^```[a-z]*\n?", "", raw)
+        raw = re.sub(r"\n?```$", "", raw)
+        labels = json.loads(raw)
+
+        for i, seg in enumerate(base):
+            if i < len(labels):
+                seg["speaker"] = labels[i].get("speaker", f"Sprecher {chr(65+i%4)}")
+            else:
+                seg["speaker"] = "Sprecher A"
+
+        log.info("Sprecher-Erkennung: %d Segmente analysiert",  len(base))
+        return base
+
+    except Exception as exc:
+        log.warning("Sprecher-Erkennung via Claude fehlgeschlagen: %s", exc)
+        return _generic_speaker_labels(base)
+
+
+def _generic_speaker_labels(segments: list) -> list:
+    """Weist generische Sprecher-Labels zu (wechselt bei langen Pausen)."""
+    speaker_idx = 0
+    prev_end = 0.0
+    for seg in segments:
+        gap = seg.get("start", 0) - prev_end
+        if gap > 2.0:  # > 2 Sekunden Pause = möglicher Sprecherwechsel
+            speaker_idx = (speaker_idx + 1) % 4
+        seg["speaker"] = f"Sprecher {chr(65 + speaker_idx)}"
+        prev_end = seg.get("end", 0)
+    return segments
+
+
+def _split_into_segments(text: str) -> list:
+    """Teilt reinen Text in Absätze auf (Fallback ohne Timestamps)."""
+    segments = []
+    for para in text.split("\n\n"):
+        para = para.strip()
+        if para:
+            segments.append({"text": para, "start": 0.0, "end": 0.0, "speaker": "Sprecher A"})
+    if not segments and text.strip():
+        segments = [{"text": text.strip(), "start": 0.0, "end": 0.0, "speaker": "Sprecher A"}]
+    return segments
