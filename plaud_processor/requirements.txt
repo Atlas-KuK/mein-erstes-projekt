@@ -1,0 +1,20 @@
+# Plaud Processor – Python-Abhängigkeiten
+# Installation: pip install -r requirements.txt
+
+# KI-Analyse
+anthropic>=0.30.0
+
+# Transkription (OpenAI Whisper API)
+openai>=1.30.0
+
+# PDF-Erstellung
+reportlab>=4.0.0
+
+# HTTP-Client (OneDrive / Plaud API)
+requests>=2.31.0
+
+# Umgebungsvariablen aus .env laden
+python-dotenv>=1.0.0
+
+# Optional: Lokales Whisper (Alternative zu OpenAI API)
+# openai-whisper>=20231117
