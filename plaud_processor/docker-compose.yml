@@ -5,17 +5,20 @@ services:
     restart: unless-stopped          # startet automatisch nach Neustart des PCs
 
     env_file:
-      - .env                         # alle API-Schlüssel aus der .env Datei
+      - .env                         # alle Einstellungen aus der .env Datei
 
     volumes:
-      # Plaud Aufnahmen-Ordner einbinden (Pfad in .env setzen)
+      # Eingangsordner: Plaud-Aufnahmen (Pfad aus .env)
       - "${PLAUD_WATCH_FOLDER:-./aufnahmen}:/watch"
-      # Daten: Logs, PDFs, Status
+      # Ausgangsordner: fertige PDFs (Pfad aus .env → OneDrive synct automatisch)
+      - "${PDF_OUTPUT_FOLDER:-./berichte}:/output"
+      # Interne Daten: Logs, Zwischendateien, Status
       - plaud-data:/data
 
     environment:
       - WORK_DIR=/data
       - PLAUD_WATCH_FOLDER=/watch    # im Container immer /watch
+      - PDF_OUTPUT_FOLDER=/output    # im Container immer /output
 
 volumes:
   plaud-data:

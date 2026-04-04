@@ -32,15 +32,16 @@ ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
 CLAUDE_MODEL: str = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6")
 
 # ---------------------------------------------------------------------------
-# OneDrive (Microsoft Graph)
+# Ausgabe-Ordner für PDFs
+# Einfachste Option: lokaler Ordner, der von OneDrive/Google Drive/Dropbox
+# automatisch synchronisiert wird – kein API, keine Kosten.
 # ---------------------------------------------------------------------------
-ONEDRIVE_CLIENT_ID: str = os.getenv("ONEDRIVE_CLIENT_ID", "")
-ONEDRIVE_CLIENT_SECRET: str = os.getenv("ONEDRIVE_CLIENT_SECRET", "")
-ONEDRIVE_TENANT_ID: str = os.getenv("ONEDRIVE_TENANT_ID", "")
-# Zielordner in OneDrive, z. B. "/Plaud Berichte"
-ONEDRIVE_FOLDER: str = os.getenv("ONEDRIVE_FOLDER", "/Plaud Berichte")
-# Für persönliche OneDrive-Konten (user principal name oder "me")
-ONEDRIVE_USER: str = os.getenv("ONEDRIVE_USER", "me")
+# Lokaler Pfad, in den die PDFs gespeichert werden.
+# Beispiele:
+#   Windows OneDrive:   C:\Users\IhrName\OneDrive\Plaud Berichte
+#   Windows Google Drive: C:\Users\IhrName\Google Drive\Plaud Berichte
+#   Mac OneDrive:       /Users/IhrName/OneDrive/Plaud Berichte
+PDF_OUTPUT_FOLDER: str = os.getenv("PDF_OUTPUT_FOLDER", "")
 
 # ---------------------------------------------------------------------------
 # E-Mail (SMTP)
