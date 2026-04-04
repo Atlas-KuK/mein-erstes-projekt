@@ -1,7 +1,9 @@
 # KI-Analyse
 anthropic>=0.30.0
 
-# Transkription (OpenAI Whisper API)
+# Transkription: lokales Whisper (kostenlos, bevorzugt)
+openai-whisper>=20231117
+# OpenAI API (nur als Fallback)
 openai>=1.30.0
 
 # PDF-Erstellung

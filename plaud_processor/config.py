@@ -20,10 +20,12 @@ PLAUD_API_TOKEN: str = os.getenv("PLAUD_API_TOKEN", "")
 PLAUD_WATCH_FOLDER: str = os.getenv("PLAUD_WATCH_FOLDER", "")
 
 # ---------------------------------------------------------------------------
-# Transkription (OpenAI Whisper)
+# Transkription – lokales Whisper (kostenlos, bevorzugt)
 # ---------------------------------------------------------------------------
+# Modell: tiny (schnell), base, small, medium (empfohlen), large (beste Qualität)
+WHISPER_MODEL: str = os.getenv("WHISPER_MODEL", "medium")
+# OpenAI API nur als Fallback (kostenpflichtig)
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-WHISPER_MODEL: str = os.getenv("WHISPER_MODEL", "whisper-1")
 
 # ---------------------------------------------------------------------------
 # KI-Analyse (Anthropic / Claude)

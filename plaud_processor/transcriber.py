@@ -1,12 +1,17 @@
 """
-Audio-Transkription via OpenAI Whisper API.
+Audio-Transkription mit lokalem Whisper (offline, kostenlos).
 
-Fallback: Falls openai nicht installiert ist, wird ein lokales
-          whisper-CLI-Tool versucht (pip install openai-whisper).
+Priorität:
+  1. Lokales whisper-CLI  (pip install openai-whisper) – kostenlos, offline
+  2. OpenAI Whisper API   – nur als Fallback wenn OPENAI_API_KEY gesetzt
+
+Lokales Whisper gibt JSON mit Timestamps aus → direkte Segment-Erkennung.
 """
 from __future__ import annotations
 
+import json
 import logging
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -15,7 +20,7 @@ from config import OPENAI_API_KEY, TRANSCRIPTION_LANGUAGE, WHISPER_MODEL
 
 log = logging.getLogger(__name__)
 
-MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024  # 25 MB – Limit der Whisper-API
+MAX_API_SIZE = 25 * 1024 * 1024  # 25 MB – Limit der OpenAI-API
 
 
 class TranscriptionError(Exception):
@@ -25,207 +30,180 @@ class TranscriptionError(Exception):
 def transcribe(audio_path: Path) -> tuple[str, list]:
     """
     Transkribiert eine Audiodatei.
-    Gibt (text, segments) zurück.
-    segments = [{"text": "...", "speaker": "Sprecher A", "start": 0.0, "end": 3.5}, ...]
+    Gibt (volltext, segmente) zurück.
+    Segmente: [{"text": "...", "speaker": "Sprecher A", "start": 0.0, "end": 3.5}]
     """
     if not audio_path.exists():
         raise FileNotFoundError(f"Audiodatei nicht gefunden: {audio_path}")
 
+    # Lokales Whisper bevorzugen (kostenlos)
+    if shutil.which("whisper"):
+        return _transkribiere_lokal(audio_path)
+
+    # Fallback: OpenAI API
     if OPENAI_API_KEY:
-        return _transcribe_via_api(audio_path)
-    else:
-        log.warning("OPENAI_API_KEY nicht gesetzt – versuche lokales Whisper-CLI")
-        text = _transcribe_via_cli(audio_path)
-        return text, _split_into_segments(text)
+        log.warning("Lokales Whisper nicht gefunden – nutze OpenAI API (kostenpflichtig)")
+        return _transkribiere_api(audio_path)
+
+    raise TranscriptionError(
+        "Kein Whisper gefunden.\n"
+        "Lokale Installation: pip install openai-whisper\n"
+        "Oder: OPENAI_API_KEY in .env setzen"
+    )
 
 
-def _transcribe_via_api(audio_path: Path) -> tuple[str, list]:
-    """Nutzt die OpenAI Whisper REST-API mit verbose_json für Segmente."""
+# ---------------------------------------------------------------------------
+# Lokales Whisper CLI (kostenlos)
+# ---------------------------------------------------------------------------
+
+def _transkribiere_lokal(audio_path: Path) -> tuple[str, list]:
+    """
+    Nutzt das installierte whisper-CLI mit JSON-Ausgabe für Timestamps.
+    Modell aus .env: WHISPER_MODEL (Standard: medium für gute Qualität/Geschwindigkeit)
+    """
+    out_dir = Path(tempfile.mkdtemp())
+
+    # Modell: lokal heißt "medium", nicht "whisper-1" wie bei der API
+    modell = WHISPER_MODEL if WHISPER_MODEL != "whisper-1" else "medium"
+
+    cmd = [
+        "whisper", str(audio_path),
+        "--model", modell,
+        "--output_dir", str(out_dir),
+        "--output_format", "json",
+    ]
+    if TRANSCRIPTION_LANGUAGE:
+        cmd += ["--language", TRANSCRIPTION_LANGUAGE]
+
+    log.info("Transkribiere lokal (Modell: %s): %s", modell, audio_path.name)
+    ergebnis = subprocess.run(cmd, capture_output=True, text=True)
+
+    if ergebnis.returncode != 0:
+        raise TranscriptionError(
+            f"Whisper-Fehler:\n{ergebnis.stderr[-1000:]}"
+        )
+
+    # JSON-Ausgabe auslesen
+    json_datei = out_dir / (audio_path.stem + ".json")
+    if not json_datei.exists():
+        # Fallback: .txt lesen
+        txt_datei = out_dir / (audio_path.stem + ".txt")
+        if txt_datei.exists():
+            text = txt_datei.read_text(encoding="utf-8").strip()
+            return text, _segmente_aus_text(text)
+        raise TranscriptionError("Whisper hat keine Ausgabedatei erzeugt")
+
+    daten = json.loads(json_datei.read_text(encoding="utf-8"))
+    text = daten.get("text", "").strip()
+    roh_segmente = daten.get("segments", [])
+
+    log.info("  ✓ %d Wörter, %d Segmente erkannt", len(text.split()), len(roh_segmente))
+
+    # Segmente aufbereiten und Sprecher zuweisen
+    segmente = _sprecherzuweisung(roh_segmente, text)
+    return text, segmente
+
+
+# ---------------------------------------------------------------------------
+# OpenAI API (Fallback, kostenpflichtig)
+# ---------------------------------------------------------------------------
+
+def _transkribiere_api(audio_path: Path) -> tuple[str, list]:
     try:
         from openai import OpenAI
     except ImportError:
-        raise TranscriptionError(
-            "openai-Paket nicht installiert. Bitte: pip install openai"
-        )
+        raise TranscriptionError("openai nicht installiert: pip install openai")
 
     client = OpenAI(api_key=OPENAI_API_KEY)
 
-    file_size = audio_path.stat().st_size
-    if file_size > MAX_FILE_SIZE_BYTES:
-        log.info("Datei %.1f MB – wird in Segmente aufgeteilt", file_size / 1024 / 1024)
-        text = _transcribe_large_file(audio_path, client)
-        return text, _split_into_segments(text)
+    if audio_path.stat().st_size > MAX_API_SIZE:
+        log.info("Datei zu groß für API – splitte mit ffmpeg")
+        text = _api_grosse_datei(audio_path, client)
+        return text, _segmente_aus_text(text)
 
-    log.info("Transkribiere via API: %s", audio_path.name)
-    kwargs: dict = {"model": WHISPER_MODEL, "response_format": "verbose_json"}
+    log.info("Transkribiere via OpenAI API: %s", audio_path.name)
+    kwargs: dict = {"model": "whisper-1", "response_format": "verbose_json"}
     if TRANSCRIPTION_LANGUAGE:
         kwargs["language"] = TRANSCRIPTION_LANGUAGE
 
     with open(audio_path, "rb") as fh:
-        response = client.audio.transcriptions.create(file=fh, **kwargs)
+        antwort = client.audio.transcriptions.create(file=fh, **kwargs)
 
-    raw_segments = getattr(response, "segments", None) or []
-    segments = _assign_speakers(raw_segments, response.text)
-    return response.text, segments
-
-
-def _transcribe_large_file(audio_path: Path, client) -> str:
-    """
-    Teilt große Dateien mit ffmpeg in 10-Minuten-Segmente auf
-    und transkribiert jedes Segment separat.
-    """
-    try:
-        import shutil
-        if not shutil.which("ffmpeg"):
-            raise TranscriptionError("ffmpeg nicht gefunden – große Dateien nicht unterstützt")
-
-        segments_dir = Path(tempfile.mkdtemp())
-        segment_pattern = str(segments_dir / "seg_%03d.mp3")
-
-        subprocess.run(
-            [
-                "ffmpeg", "-i", str(audio_path),
-                "-f", "segment", "-segment_time", "540",
-                "-ar", "16000", "-ac", "1",
-                "-c:a", "libmp3lame", "-q:a", "4",
-                segment_pattern,
-            ],
-            check=True,
-            capture_output=True,
-        )
-
-        texts = []
-        kwargs: dict = {"model": WHISPER_MODEL}
-        if TRANSCRIPTION_LANGUAGE:
-            kwargs["language"] = TRANSCRIPTION_LANGUAGE
-
-        for seg in sorted(segments_dir.glob("seg_*.mp3")):
-            log.info("  Segment: %s", seg.name)
-            with open(seg, "rb") as fh:
-                resp = client.audio.transcriptions.create(file=fh, **kwargs)
-            texts.append(resp.text)
-            seg.unlink()
-
-        return "\n".join(texts)
-
-    except subprocess.CalledProcessError as exc:
-        raise TranscriptionError(f"ffmpeg Fehler: {exc.stderr.decode()}")
+    roh = getattr(antwort, "segments", None) or []
+    return antwort.text, _sprecherzuweisung(roh, antwort.text)
 
 
-def _transcribe_via_cli(audio_path: Path) -> str:
-    """Fallback: Nutzt das lokale openai-whisper CLI."""
-    import shutil
-    if not shutil.which("whisper"):
-        raise TranscriptionError(
-            "Weder openai-Paket noch whisper-CLI gefunden.\n"
-            "Bitte installieren: pip install openai  (empfohlen)\n"
-            "oder:               pip install openai-whisper"
-        )
+def _api_grosse_datei(audio_path: Path, client) -> str:
+    if not shutil.which("ffmpeg"):
+        raise TranscriptionError("ffmpeg fehlt – große Dateien nicht möglich")
 
-    out_dir = Path(tempfile.mkdtemp())
-    cmd = ["whisper", str(audio_path), "--output_dir", str(out_dir), "--output_format", "txt"]
+    seg_dir = Path(tempfile.mkdtemp())
+    subprocess.run([
+        "ffmpeg", "-i", str(audio_path),
+        "-f", "segment", "-segment_time", "540",
+        "-ar", "16000", "-ac", "1", "-c:a", "libmp3lame", "-q:a", "4",
+        str(seg_dir / "seg_%03d.mp3"),
+    ], check=True, capture_output=True)
+
+    texte = []
+    kwargs: dict = {"model": "whisper-1"}
     if TRANSCRIPTION_LANGUAGE:
-        cmd += ["--language", TRANSCRIPTION_LANGUAGE]
+        kwargs["language"] = TRANSCRIPTION_LANGUAGE
 
-    log.info("Transkribiere via lokales Whisper-CLI: %s", audio_path.name)
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise TranscriptionError(f"Whisper-CLI Fehler: {result.stderr}")
+    for seg in sorted(seg_dir.glob("seg_*.mp3")):
+        with open(seg, "rb") as fh:
+            texte.append(client.audio.transcriptions.create(file=fh, **kwargs).text)
+        seg.unlink()
 
-    txt_file = out_dir / (audio_path.stem + ".txt")
-    if txt_file.exists():
-        return txt_file.read_text(encoding="utf-8")
-
-    raise TranscriptionError("Whisper-CLI hat keine Ausgabedatei erzeugt")
+    return "\n".join(texte)
 
 
 # ---------------------------------------------------------------------------
-# Sprecher-Erkennung (heuristisch via Claude)
+# Sprecher-Zuweisung (heuristisch via Pausen, kein extra API-Aufruf)
 # ---------------------------------------------------------------------------
 
-def _assign_speakers(raw_segments: list, full_text: str) -> list:
+def _sprecherzuweisung(roh_segmente: list, volltext: str) -> list:
     """
-    Versucht Sprecherwechsel via Claude zu erkennen.
-    Gibt Segmente mit speaker-Feld zurück.
-    Fallback: einfache Absatz-Aufteilung mit generischen Namen.
+    Erkennt Sprecherwechsel anhand von Pausen zwischen Segmenten.
+    Kein Claude-Aufruf nötig → keine Zusatzkosten.
+    Im Web-UI können Sprecher manuell umbenannt werden.
     """
-    from config import ANTHROPIC_API_KEY, CLAUDE_MODEL
+    if not roh_segmente:
+        return _segmente_aus_text(volltext)
 
-    # Basis-Segmente aus Whisper aufbereiten
-    base = []
-    for s in raw_segments:
-        text = s.get("text", "").strip() if isinstance(s, dict) else getattr(s, "text", "").strip()
+    segmente = []
+    sprecher_idx = 0
+    letztes_ende = 0.0
+
+    for s in roh_segmente:
+        text = (s.get("text") or "").strip()
         if not text:
             continue
-        start = s.get("start", 0) if isinstance(s, dict) else getattr(s, "start", 0)
-        end   = s.get("end",   0) if isinstance(s, dict) else getattr(s, "end",   0)
-        base.append({"text": text, "start": float(start), "end": float(end), "speaker": ""})
+        start = float(s.get("start", 0))
+        ende  = float(s.get("end",   0))
 
-    if not base:
-        return _split_into_segments(full_text)
+        # Pause > 1.5 Sekunden → Sprecherwechsel wahrscheinlich
+        if start - letztes_ende > 1.5:
+            sprecher_idx = (sprecher_idx + 1) % 6
 
-    if not ANTHROPIC_API_KEY:
-        return _generic_speaker_labels(base)
+        segmente.append({
+            "text":    text,
+            "start":   start,
+            "end":     ende,
+            "speaker": f"Sprecher {chr(65 + sprecher_idx)}",
+        })
+        letztes_ende = ende
 
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
-        # Nur ersten 3000 Zeichen analysieren (Kosten sparen)
-        sample = full_text[:3000]
-        message = client.messages.create(
-            model=CLAUDE_MODEL,
-            max_tokens=1024,
-            system="Du erkennst Sprecherwechsel in Transkripten. Antworte NUR mit JSON.",
-            messages=[{"role": "user", "content": f"""Analysiere dieses Transkript und erkenne Sprecherwechsel.
-Gib für jeden der {len(base)} Sätze einen Sprecher an (Sprecher A, Sprecher B, etc.).
-Antworte mit einem JSON-Array der gleichen Länge wie die Eingabe:
-[{{"speaker": "Sprecher A"}}, {{"speaker": "Sprecher B"}}, ...]
-
-Transkript-Sätze:
-{chr(10).join(f'{i+1}. {s["text"]}' for i,s in enumerate(base[:50]))}"""}],
-        )
-
-        import json, re
-        raw = message.content[0].text.strip()
-        raw = re.sub(r"^```[a-z]*\n?", "", raw)
-        raw = re.sub(r"\n?```$", "", raw)
-        labels = json.loads(raw)
-
-        for i, seg in enumerate(base):
-            if i < len(labels):
-                seg["speaker"] = labels[i].get("speaker", f"Sprecher {chr(65+i%4)}")
-            else:
-                seg["speaker"] = "Sprecher A"
-
-        log.info("Sprecher-Erkennung: %d Segmente analysiert",  len(base))
-        return base
-
-    except Exception as exc:
-        log.warning("Sprecher-Erkennung via Claude fehlgeschlagen: %s", exc)
-        return _generic_speaker_labels(base)
+    return segmente
 
 
-def _generic_speaker_labels(segments: list) -> list:
-    """Weist generische Sprecher-Labels zu (wechselt bei langen Pausen)."""
-    speaker_idx = 0
-    prev_end = 0.0
-    for seg in segments:
-        gap = seg.get("start", 0) - prev_end
-        if gap > 2.0:  # > 2 Sekunden Pause = möglicher Sprecherwechsel
-            speaker_idx = (speaker_idx + 1) % 4
-        seg["speaker"] = f"Sprecher {chr(65 + speaker_idx)}"
-        prev_end = seg.get("end", 0)
-    return segments
-
-
-def _split_into_segments(text: str) -> list:
-    """Teilt reinen Text in Absätze auf (Fallback ohne Timestamps)."""
-    segments = []
-    for para in text.split("\n\n"):
-        para = para.strip()
-        if para:
-            segments.append({"text": para, "start": 0.0, "end": 0.0, "speaker": "Sprecher A"})
-    if not segments and text.strip():
-        segments = [{"text": text.strip(), "start": 0.0, "end": 0.0, "speaker": "Sprecher A"}]
-    return segments
+def _segmente_aus_text(text: str) -> list:
+    """Teilt reinen Text in Absätze auf (wenn keine Timestamps vorhanden)."""
+    segs = []
+    for absatz in text.split("\n\n"):
+        absatz = absatz.strip()
+        if absatz:
+            segs.append({"text": absatz, "start": 0.0, "end": 0.0, "speaker": "Sprecher A"})
+    if not segs and text.strip():
+        segs = [{"text": text.strip(), "start": 0.0, "end": 0.0, "speaker": "Sprecher A"}]
+    return segs
