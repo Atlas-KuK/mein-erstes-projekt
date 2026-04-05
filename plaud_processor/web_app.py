@@ -9,7 +9,11 @@ import logging
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, Request, HTTPException, Form
+import shutil
+import threading
+from datetime import datetime
+
+from fastapi import FastAPI, Request, HTTPException, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -200,3 +204,98 @@ async def add_speaker(request: Request):
         raise HTTPException(400, "Name darf nicht leer sein")
     speaker_id = storage.upsert_speaker(name)
     return {"ok": True, "id": speaker_id}
+
+
+# ---------------------------------------------------------------------------
+# iPhone Shortcut Upload
+# ---------------------------------------------------------------------------
+
+UPLOAD_DIR = WORK_DIR / "eingang"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+ERLAUBTE_ENDUNGEN = {".mp3", ".m4a", ".mp4", ".wav", ".ogg", ".flac", ".aac", ".webm"}
+
+
+@app.post("/api/upload")
+async def upload_von_iphone(
+    file: UploadFile = File(...),
+    titel: str = "",
+):
+    """
+    Empfängt Audiodatei vom iPhone Shortcut.
+    URL für den Shortcut: http://<PC-IP>:8080/api/upload
+    """
+    endung = Path(file.filename).suffix.lower()
+    if endung not in ERLAUBTE_ENDUNGEN:
+        raise HTTPException(400, f"Format nicht unterstützt: {endung}")
+
+    # Dateiname mit Zeitstempel (verhindert Duplikate)
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    sicherer_name = f"{ts}_{Path(file.filename).name}"
+    ziel = UPLOAD_DIR / sicherer_name
+
+    with open(ziel, "wb") as fh:
+        shutil.copyfileobj(file.file, fh)
+
+    datei_mb = ziel.stat().st_size / 1024 / 1024
+    log.info("iPhone-Upload empfangen: %s (%.1f MB)", sicherer_name, datei_mb)
+
+    # Verarbeitung im Hintergrund starten (blockiert den Shortcut nicht)
+    threading.Thread(
+        target=_verarbeite_upload,
+        args=(ziel, titel or Path(file.filename).stem),
+        daemon=True,
+    ).start()
+
+    return {
+        "ok": True,
+        "datei": sicherer_name,
+        "groesse_mb": round(datei_mb, 1),
+        "nachricht": "Datei empfangen – Verarbeitung läuft im Hintergrund",
+    }
+
+
+def _verarbeite_upload(audio_pfad: Path, titel: str) -> None:
+    """Verarbeitet hochgeladene Datei (läuft in eigenem Thread)."""
+    try:
+        import main as hauptprogramm
+        from plaud_client import Recording
+        rec = Recording(
+            recording_id=str(audio_pfad),
+            title=titel,
+            local_path=audio_pfad,
+        )
+        hauptprogramm.process_recording(rec)
+    except Exception as exc:
+        log.error("Verarbeitung des Uploads fehlgeschlagen: %s", exc)
+
+
+# ---------------------------------------------------------------------------
+# Status-Seite (für iPhone Shortcut Bestätigung)
+# ---------------------------------------------------------------------------
+
+@app.get("/status", response_class=HTMLResponse)
+async def status(request: Request):
+    """Einfache Status-Seite – zeigt ob der Server läuft."""
+    aufnahmen = storage.get_all_recordings()
+    letzte = aufnahmen[:5] if aufnahmen else []
+    html = f"""<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Plaud Processor – Status</title>
+<style>body{{font-family:system-ui;padding:20px;max-width:500px;margin:auto}}
+.ok{{color:#27ae60;font-size:48px;text-align:center}}
+.card{{background:#f5f7fa;border-radius:8px;padding:16px;margin:12px 0}}
+h1{{color:#1a3a5c}}</style></head>
+<body>
+<div class="ok">✓</div>
+<h1 style="text-align:center">Server läuft</h1>
+<div class="card">
+  <strong>Letzte Aufnahmen:</strong><br>
+  {'<br>'.join(f"{'✅' if r['status']=='done' else '⏳'} {r['title'] or r['filename']}" for r in letzte) or 'Noch keine Aufnahmen'}
+</div>
+<p style="text-align:center;color:#888">
+  <a href="/">Dashboard öffnen</a>
+</p>
+</body></html>"""
+    return HTMLResponse(html)

@@ -31,7 +31,8 @@ OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
 # KI-Analyse (Anthropic / Claude)
 # ---------------------------------------------------------------------------
 ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
-CLAUDE_MODEL: str = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6")
+# Haiku: ~10× günstiger als Sonnet, für Protokolle völlig ausreichend
+CLAUDE_MODEL: str = os.getenv("CLAUDE_MODEL", "claude-haiku-4-5")
 
 # ---------------------------------------------------------------------------
 # Ausgabe-Ordner für PDFs
