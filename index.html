@@ -1,63 +1,146 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mein erstes Projekt</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Dashboard – Catering & Personal</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">Mein Projekt</div>
-            <ul>
-                <li><a href="#home">Start</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Kontakt</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <nav>
+      <div class="logo">Catering Dashboard</div>
+      <ul>
+        <li><a href="#events">Ereignisse</a></li>
+        <li><a href="#timeline">Timeline</a></li>
+        <li><a href="#setup">Einrichtung</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <main>
-        <section id="home" class="hero">
-            <h1>Willkommen auf meiner Webseite</h1>
-            <p>Dies ist mein erstes Webprojekt.</p>
-            <button id="cta-button">Mehr erfahren</button>
-        </section>
+  <main>
+    <!-- HERO / STATUS -->
+    <section id="events" class="hero">
+      <h1>Event-Übersicht</h1>
+      <p class="hero-sub">Alle anstehenden Aufträge auf einen Blick</p>
+      <div class="status-bar">
+        <div class="status-item">
+          <span class="status-count" id="count-total">–</span>
+          <span class="status-label">Gesamt</span>
+        </div>
+        <div class="status-item">
+          <span class="status-count upcoming" id="count-upcoming">–</span>
+          <span class="status-label">Diese Woche</span>
+        </div>
+        <div class="status-item">
+          <span class="status-count done" id="count-done">–</span>
+          <span class="status-label">Erledigt</span>
+        </div>
+      </div>
+    </section>
 
-        <section id="about" class="about">
-            <h2>About</h2>
-            <div class="cards">
-                <div class="card">
-                    <h3>Design</h3>
-                    <p>Modernes und responsives Design, das auf allen Geraeten gut aussieht.</p>
-                </div>
-                <div class="card">
-                    <h3>Technik</h3>
-                    <p>Gebaut mit HTML, CSS und JavaScript - den Grundlagen des Webs.</p>
-                </div>
-                <div class="card">
-                    <h3>Leidenschaft</h3>
-                    <p>Mit Begeisterung fuer Webentwicklung erstellt.</p>
-                </div>
+    <!-- EVENT CARDS -->
+    <section class="events-section">
+      <div class="section-header">
+        <h2>Anstehende Aufträge</h2>
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">Alle</button>
+          <button class="filter-btn" data-filter="catering">Catering</button>
+          <button class="filter-btn" data-filter="event">Event</button>
+          <button class="filter-btn" data-filter="other">Sonstiges</button>
+        </div>
+      </div>
+      <div class="events-grid" id="events-grid">
+        <!-- Wird durch JavaScript / Google Sheets gefüllt -->
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Daten werden geladen…</p>
+          <p class="hint">→ <a href="#setup">Einrichtung abschließen</a> um echte Daten anzuzeigen</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section id="timeline" class="timeline-section">
+      <h2>Nächste 30 Tage</h2>
+      <div class="timeline" id="timeline-container">
+        <p class="empty-state">Noch keine Ereignisse geplant.</p>
+      </div>
+    </section>
+
+    <!-- SETUP GUIDE -->
+    <section id="setup" class="setup-section">
+      <h2>Einrichtung</h2>
+      <div class="setup-steps">
+
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Google Sheet erstellen</h3>
+            <p>Erstelle ein neues Google Sheet mit folgendem Aufbau:</p>
+            <div class="code-block">
+              <code>Datum | Titel | Typ | Pax | Ort | Einkauf-Personal | Koch-Personal | Liefer-Personal | Status | Notizen</code>
             </div>
-        </section>
+            <p>Dann: <strong>Datei → Im Web veröffentlichen → CSV</strong> und die URL unten eintragen.</p>
+          </div>
+        </div>
 
-        <section id="contact" class="contact">
-            <h2>Kontakt</h2>
-            <form id="contact-form">
-                <input type="text" placeholder="Name" required>
-                <input type="email" placeholder="E-Mail" required>
-                <textarea placeholder="Nachricht" required></textarea>
-                <button type="submit">Absenden</button>
-            </form>
-        </section>
-    </main>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Google Sheet URL eintragen</h3>
+            <div class="config-form">
+              <input type="text" id="sheet-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv" />
+              <button onclick="saveConfig()">Speichern & Laden</button>
+            </div>
+            <p class="hint">Die URL bekommst du unter: Datei → Im Web veröffentlichen → CSV-Format auswählen</p>
+          </div>
+        </div>
 
-    <footer>
-        <p>&copy; 2026 Mein erstes Projekt</p>
-    </footer>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Google Apps Script einrichten</h3>
+            <p>Im Google Sheet: <strong>Erweiterungen → Apps Script</strong> und den Code aus <code>apps-script/automation.gs</code> einfügen. Dieser:</p>
+            <ul>
+              <li>Erstellt automatisch eine PDF mit allen Details</li>
+              <li>Schickt dir eine E-Mail mit der Ordio-Checkliste</li>
+              <li>Aktualisiert das Dashboard</li>
+            </ul>
+          </div>
+        </div>
 
-    <script src="script.js"></script>
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h3>Google Form verknüpfen</h3>
+            <p>Erstelle ein Google Form mit denselben Feldern wie das Sheet. Verknüpfe es mit dem Sheet. Dann läuft die Automatisierung bei jedem neuen Auftrag.</p>
+          </div>
+        </div>
+
+        <div class="step ordio-step">
+          <div class="step-number">!</div>
+          <div class="step-content">
+            <h3>Ordio – Halbautomatisch</h3>
+            <p>Ordio hat keine öffentliche API. Deshalb bekommst du per E-Mail eine <strong>fertige Ordio-Checkliste</strong> mit copy-paste-fertigen Texten für:</p>
+            <ul>
+              <li>Tagesnotiz (z.B. "Catering 60 Pax – Firma XY")</li>
+              <li>Personalslot Einkauf (Datum, Uhrzeit, Person)</li>
+              <li>Personalslot Kochen</li>
+              <li>Personalslot Lieferung</li>
+            </ul>
+            <p>Das dauert ~2 Minuten in Ordio. Wenn Ordio später eine API freigibt, kann dieser Schritt vollautomatisch werden.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Catering Event Dashboard &copy; 2026 – <a href="https://github.com/atlas-kuk/mein-erstes-projekt" target="_blank">GitHub</a></p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
