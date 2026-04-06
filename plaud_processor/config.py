@@ -28,10 +28,17 @@ WHISPER_MODEL: str = os.getenv("WHISPER_MODEL", "medium")
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
 
 # ---------------------------------------------------------------------------
-# KI-Analyse (Anthropic / Claude)
+# KI-Analyse – Priorität: Ollama (lokal, kostenlos) → Claude (Fallback)
 # ---------------------------------------------------------------------------
+
+# Ollama – läuft lokal auf dem PC, kostenlos, keine Datenweitergabe
+# Im Docker-Container muss host.docker.internal verwendet werden
+OLLAMA_URL: str = os.getenv("OLLAMA_URL", "http://host.docker.internal:11434")
+# Empfohlene Modelle: llama3.1:8b | mistral:7b | qwen2.5:7b
+OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+
+# Claude als Fallback (nur wenn Ollama nicht verfügbar)
 ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
-# Haiku: ~10× günstiger als Sonnet, für Protokolle völlig ausreichend
 CLAUDE_MODEL: str = os.getenv("CLAUDE_MODEL", "claude-haiku-4-5")
 
 # ---------------------------------------------------------------------------

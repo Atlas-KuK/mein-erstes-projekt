@@ -1,6 +1,6 @@
 services:
 
-  # ── Hintergrund-Prozessor: pollt alle 5 Min nach neuen Aufnahmen ────────────
+  # ── Hintergrund-Prozessor ────────────────────────────────────────────────────
   plaud-processor:
     build: .
     container_name: plaud-processor
@@ -14,9 +14,13 @@ services:
       - WORK_DIR=/data
       - PLAUD_WATCH_FOLDER=/watch
       - PDF_OUTPUT_FOLDER=/output
+      # Ollama läuft auf dem Host-PC, nicht im Container
+      - OLLAMA_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: python main.py --loop
 
-  # ── Web-UI: Plattform für Transkripte, Sprecher, Protokolle ─────────────────
+  # ── Web-UI ───────────────────────────────────────────────────────────────────
   plaud-web:
     build: .
     container_name: plaud-web
@@ -30,6 +34,9 @@ services:
     environment:
       - WORK_DIR=/data
       - PDF_OUTPUT_FOLDER=/output
+      - OLLAMA_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: >
       uvicorn web_app:app
       --host 0.0.0.0

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
-from config import ANTHROPIC_API_KEY, CLAUDE_MODEL, WORK_DIR
+from config import ANTHROPIC_API_KEY, CLAUDE_MODEL, OLLAMA_MODEL, OLLAMA_URL, WORK_DIR
 
 log = logging.getLogger(__name__)
 
@@ -209,9 +209,8 @@ def list_templates() -> List[dict]:
 def generate_protocol_html(template_key: str, transcript_text: str,
                             segments: list, recording_title: str = "") -> str:
     """
-    Generiert den HTML-Inhalt eines Protokolls.
-    Für 'transkript': direkte Aufbereitung ohne Claude.
-    Für alle anderen: Claude-basierte Generierung.
+    Generiert HTML-Protokoll.
+    Priorität: Ollama (lokal, kostenlos) → Claude (Fallback)
     """
     template = get_template(template_key)
     if not template:
@@ -220,38 +219,78 @@ def generate_protocol_html(template_key: str, transcript_text: str,
     if template_key == "transkript":
         return _build_transcript_html(segments, transcript_text)
 
-    if not ANTHROPIC_API_KEY:
-        log.error("ANTHROPIC_API_KEY fehlt – Protokoll kann nicht generiert werden")
-        return f"<p>Fehler: ANTHROPIC_API_KEY nicht konfiguriert.</p>"
+    transkript = _format_segments_for_prompt(segments) if segments else transcript_text
+    nutzer_inhalt = (
+        f"Titel der Aufnahme: {recording_title}\n\n"
+        f"Transkript:\n{transkript}\n\n---\n\n{template.prompt}"
+    )
+    system = "Du bist ein professioneller Assistent für Protokollerstellung. Erstelle strukturierte, gut lesbare Protokolle auf Deutsch."
 
+    # Ollama bevorzugen (kostenlos)
+    if _ollama_verfuegbar():
+        log.info("Generiere %s via Ollama …", template.label)
+        html = _ki_anfrage_ollama(system, nutzer_inhalt)
+        if html:
+            return _bereinige_html(html)
+
+    # Fallback: Claude
+    if ANTHROPIC_API_KEY:
+        log.info("Generiere %s via Claude …", template.label)
+        html = _ki_anfrage_claude(system, nutzer_inhalt)
+        if html:
+            return _bereinige_html(html)
+
+    return "<p>Fehler: Weder Ollama noch Claude verfügbar.</p>"
+
+
+def _ollama_verfuegbar() -> bool:
+    import requests as req
+    try:
+        return req.get(f"{OLLAMA_URL}/api/tags", timeout=3).status_code == 200
+    except Exception:
+        return False
+
+
+def _ki_anfrage_ollama(system: str, inhalt: str) -> str | None:
+    import requests as req
+    try:
+        r = req.post(
+            f"{OLLAMA_URL}/api/chat",
+            json={
+                "model": OLLAMA_MODEL,
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user",   "content": inhalt},
+                ],
+                "stream": False,
+                "options": {"temperature": 0.2},
+            },
+            timeout=180,
+        )
+        r.raise_for_status()
+        return r.json()["message"]["content"].strip()
+    except Exception as exc:
+        log.warning("Ollama Protokoll-Generierung fehlgeschlagen: %s", exc)
+        return None
+
+
+def _ki_anfrage_claude(system: str, inhalt: str) -> str | None:
     try:
         import anthropic
-    except ImportError:
-        return "<p>Fehler: anthropic-Paket nicht installiert.</p>"
+        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        msg = client.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=4096,
+            system=system,
+            messages=[{"role": "user", "content": inhalt}],
+        )
+        return msg.content[0].text.strip()
+    except Exception as exc:
+        log.warning("Claude Protokoll-Generierung fehlgeschlagen: %s", exc)
+        return None
 
-    # Transkript mit Sprechern aufbereiten
-    if segments:
-        formatted = _format_segments_for_prompt(segments)
-    else:
-        formatted = transcript_text
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    log.info("Generiere %s für '%s'…", template.label, recording_title)
-
-    message = client.messages.create(
-        model=CLAUDE_MODEL,
-        max_tokens=4096,
-        system=f"Du bist ein professioneller Assistent für Protokollerstellung. "
-               f"Erstelle strukturierte, gut lesbare Protokolle auf Deutsch.",
-        messages=[{
-            "role": "user",
-            "content": f"Titel der Aufnahme: {recording_title}\n\n"
-                       f"Transkript:\n{formatted}\n\n---\n\n{template.prompt}"
-        }],
-    )
-
-    html = message.content[0].text.strip()
-    # Markdown-Code-Blöcke entfernen falls vorhanden
+def _bereinige_html(html: str) -> str:
     html = re.sub(r"^```[a-z]*\n?", "", html)
     html = re.sub(r"\n?```$", "", html)
     return html
