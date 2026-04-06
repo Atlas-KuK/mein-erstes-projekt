@@ -1,0 +1,50 @@
+services:
+
+  # ── Hintergrund-Prozessor ────────────────────────────────────────────────────
+  plaud-processor:
+    build: .
+    container_name: plaud-processor
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - "${PLAUD_WATCH_FOLDER:-./aufnahmen}:/watch"
+      - "${PDF_OUTPUT_FOLDER:-./berichte}:/output"
+      - plaud-data:/data
+    environment:
+      - WORK_DIR=/data
+      - PLAUD_WATCH_FOLDER=/watch
+      - PDF_OUTPUT_FOLDER=/output
+      # Ollama läuft auf dem Host-PC, nicht im Container
+      - OLLAMA_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: python main.py --loop
+
+  # ── Web-UI ───────────────────────────────────────────────────────────────────
+  plaud-web:
+    build: .
+    container_name: plaud-web
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8080:8080"
+    volumes:
+      - "${PDF_OUTPUT_FOLDER:-./berichte}:/output"
+      - plaud-data:/data
+    environment:
+      - WORK_DIR=/data
+      - PDF_OUTPUT_FOLDER=/output
+      - OLLAMA_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: >
+      uvicorn web_app:app
+      --host 0.0.0.0
+      --port 8080
+      --workers 1
+    depends_on:
+      - plaud-processor
+
+volumes:
+  plaud-data:
+    driver: local
