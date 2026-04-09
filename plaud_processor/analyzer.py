@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 import httpx
 
 import config
-from protocol_templates import get_template
+from protocol_templates import get_template, get_system_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -71,16 +71,10 @@ def _analyze_ollama(prompt: str, template_name: str) -> AnalysisResult:
     """Analyse via Ollama (lokal, kostenlos)."""
     url = f"{config.OLLAMA_URL}/api/generate"
 
-    system_prompt = (
-        "Du bist ein professioneller Protokollassistent. "
-        "Erstelle strukturierte, gut formatierte Protokolle auf Deutsch. "
-        "Verwende Markdown-Formatierung."
-    )
-
     payload = {
         "model": config.OLLAMA_MODEL,
         "prompt": prompt,
-        "system": system_prompt,
+        "system": get_system_prompt(),
         "stream": False,
         "options": {
             "temperature": 0.3,
@@ -116,11 +110,7 @@ def _analyze_claude(prompt: str, template_name: str) -> AnalysisResult:
     message = client.messages.create(
         model=config.CLAUDE_MODEL,
         max_tokens=4096,
-        system=(
-            "Du bist ein professioneller Protokollassistent. "
-            "Erstelle strukturierte, gut formatierte Protokolle auf Deutsch. "
-            "Verwende Markdown-Formatierung."
-        ),
+        system=get_system_prompt(),
         messages=[{"role": "user", "content": prompt}],
     )
 
