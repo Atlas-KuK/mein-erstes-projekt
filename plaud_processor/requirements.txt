@@ -1,0 +1,21 @@
+# Web-Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+jinja2==3.1.5
+
+# Transkription (lokal)
+openai-whisper==20240930
+
+# KI-Analyse (Fallback)
+anthropic==0.42.0
+openai==1.58.1
+
+# HTTP Client (für Ollama)
+httpx==0.28.1
+
+# PDF-Erstellung
+reportlab==4.2.5
+
+# Umgebungsvariablen
+python-dotenv==1.0.1

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}{{ recording.filename }} - Plaud Audio Processor{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="/">Dashboard</a> &raquo; {{ recording.filename }}
+</div>
+
+<h1>{{ recording.filename }}</h1>
+
+<!-- Metadaten -->
+<div class="card">
+    <h2>Details</h2>
+    <div class="meta-grid">
+        <div><strong>ID:</strong> {{ recording.id }}</div>
+        <div><strong>Status:</strong> <span class="status status-{{ recording.status }}">{{ recording.status }}</span></div>
+        <div><strong>Vorlage:</strong> {{ recording.template }}</div>
+        <div><strong>Erstellt:</strong> {{ recording.created_at }}</div>
+        <div><strong>Aktualisiert:</strong> {{ recording.updated_at }}</div>
+    </div>
+</div>
+
+<!-- Vorlage aendern -->
+<div class="card">
+    <h2>Protokollvorlage</h2>
+    <form action="/recording/{{ recording.id }}/template" method="post" class="inline-form">
+        <select name="template">
+            {% for t in templates %}
+            <option value="{{ t.key }}" {% if t.key == recording.template %}selected{% endif %}>
+                {{ t.name }} &mdash; {{ t.description }}
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-small">Vorlage speichern</button>
+    </form>
+
+    {% if transcript %}
+    <form action="/recording/{{ recording.id }}/reanalyze" method="post" class="inline-form" style="margin-top: 10px;">
+        <input type="hidden" name="template" value="{{ recording.template }}">
+        <button type="submit" class="btn btn-primary">Erneut analysieren</button>
+    </form>
+    {% endif %}
+</div>
+
+<!-- Transkript -->
+{% if transcript %}
+<div class="card">
+    <h2>Transkript</h2>
+    <div class="meta-info">
+        <span>Engine: {{ transcript.engine }}</span>
+        <span>Sprache: {{ transcript.language }}</span>
+        <span>Laenge: {{ transcript.text|length }} Zeichen</span>
+    </div>
+    <div class="transcript-text">{{ transcript.text }}</div>
+</div>
+{% endif %}
+
+<!-- Sprecher -->
+{% if speakers %}
+<div class="card">
+    <h2>Sprecher-Zuweisung</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Label</th>
+                <th>Name</th>
+                <th>Segmente</th>
+                <th>Aktion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in speakers %}
+            <tr>
+                <td>{{ s.speaker_label }}</td>
+                <td>
+                    <input type="text" value="{{ s.speaker_name }}" id="speaker-name-{{ s.id }}"
+                           placeholder="Name eingeben...">
+                </td>
+                <td>{{ s.segments|length }}</td>
+                <td>
+                    <button class="btn btn-small"
+                            onclick="updateSpeaker({{ s.id }})">Speichern</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- Protokoll -->
+{% if protocol %}
+<div class="card">
+    <h2>Protokoll</h2>
+    <div class="meta-info">
+        <span>Vorlage: {{ protocol.template }}</span>
+        <span>Engine: {{ protocol.engine }}</span>
+        <span>Erstellt: {{ protocol.created_at }}</span>
+        {% if protocol.pdf_path %}
+        <a href="/protocol/{{ recording.id }}/pdf" class="btn btn-small">PDF herunterladen</a>
+        {% endif %}
+    </div>
+    <div class="protocol-content">
+        {{ protocol.content_html | safe }}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function updateSpeaker(speakerId) {
+    const nameInput = document.getElementById('speaker-name-' + speakerId);
+    const name = nameInput.value;
+
+    const form = new FormData();
+    form.append('name', name);
+
+    try {
+        const response = await fetch('/speaker/' + speakerId + '/name', {
+            method: 'POST',
+            body: form,
+        });
+        const data = await response.json();
+        if (data.ok) {
+            nameInput.style.borderColor = '#28a745';
+            setTimeout(() => { nameInput.style.borderColor = ''; }, 2000);
+        }
+    } catch(err) {
+        alert('Fehler: ' + err.message);
+    }
+}
+</script>
+{% endblock %}

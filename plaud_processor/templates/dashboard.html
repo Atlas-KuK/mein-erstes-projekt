@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Plaud Audio Processor{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<!-- Status-Karten -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.total }}</div>
+        <div class="stat-label">Gesamt</div>
+    </div>
+    <div class="stat-card stat-new">
+        <div class="stat-number">{{ stats.neu }}</div>
+        <div class="stat-label">Neu</div>
+    </div>
+    <div class="stat-card stat-processing">
+        <div class="stat-number">{{ stats.verarbeitet }}</div>
+        <div class="stat-label">In Bearbeitung</div>
+    </div>
+    <div class="stat-card stat-done">
+        <div class="stat-number">{{ stats.fertig }}</div>
+        <div class="stat-label">Fertig</div>
+    </div>
+    <div class="stat-card stat-error">
+        <div class="stat-number">{{ stats.fehler }}</div>
+        <div class="stat-label">Fehler</div>
+    </div>
+</div>
+
+<!-- Ollama-Status -->
+<div class="info-box {% if ollama_available %}info-success{% else %}info-warning{% endif %}">
+    {% if ollama_available %}
+        Ollama ist erreichbar &mdash; KI-Analyse laeuft lokal und kostenlos.
+    {% else %}
+        Ollama ist nicht erreichbar. Bitte <code>ollama serve</code> starten oder Claude Haiku als Fallback konfigurieren.
+    {% endif %}
+</div>
+
+<!-- Upload-Bereich -->
+<div class="card">
+    <h2>Audiodatei hochladen</h2>
+    <form action="/api/upload" method="post" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+        <div class="form-group">
+            <label for="file">Audiodatei auswaehlen:</label>
+            <input type="file" name="file" id="file" accept=".mp3,.wav,.m4a,.ogg,.flac,.webm,.mp4,.aac" required>
+        </div>
+        <div class="form-group">
+            <label for="titel">Titel (optional):</label>
+            <input type="text" name="titel" id="titel" placeholder="z.B. Teambesprechung 09.04.2025">
+        </div>
+        <button type="submit" class="btn btn-primary">Hochladen</button>
+    </form>
+    <div id="uploadResult" class="upload-result" style="display: none;"></div>
+</div>
+
+<!-- Aufnahmen-Liste -->
+<div class="card">
+    <h2>Aufnahmen</h2>
+    {% if recordings %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Dateiname</th>
+                <th>Vorlage</th>
+                <th>Status</th>
+                <th>Erstellt</th>
+                <th>Aktionen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rec in recordings %}
+            <tr>
+                <td>{{ rec.id }}</td>
+                <td><a href="/recording/{{ rec.id }}">{{ rec.filename }}</a></td>
+                <td><span class="badge">{{ rec.template }}</span></td>
+                <td><span class="status status-{{ rec.status }}">{{ rec.status }}</span></td>
+                <td>{{ rec.created_at }}</td>
+                <td>
+                    <a href="/recording/{{ rec.id }}" class="btn btn-small">Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">Noch keine Aufnahmen vorhanden. Laden Sie eine Audiodatei hoch oder konfigurieren Sie den Watch-Ordner.</p>
+    {% endif %}
+</div>
+
+<!-- Letzte Protokolle -->
+{% if protocols %}
+<div class="card">
+    <h2>Letzte Protokolle</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Datei</th>
+                <th>Vorlage</th>
+                <th>Engine</th>
+                <th>Erstellt</th>
+                <th>PDF</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in protocols %}
+            <tr>
+                <td>{{ p.filename }}</td>
+                <td><span class="badge">{{ p.template }}</span></td>
+                <td>{{ p.engine }}</td>
+                <td>{{ p.created_at }}</td>
+                <td>
+                    {% if p.pdf_path %}
+                    <a href="/protocol/{{ p.recording_id }}/pdf" class="btn btn-small">PDF</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = new FormData(this);
+    const resultDiv = document.getElementById('uploadResult');
+
+    try {
+        const response = await fetch('/api/upload', { method: 'POST', body: form });
+        const data = await response.json();
+
+        resultDiv.style.display = 'block';
+        if (data.ok) {
+            resultDiv.className = 'upload-result success';
+            resultDiv.textContent = 'Datei hochgeladen: ' + data.datei + ' (ID: ' + data.id + ')';
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            resultDiv.className = 'upload-result error';
+            resultDiv.textContent = 'Fehler: ' + data.error;
+        }
+    } catch(err) {
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'upload-result error';
+        resultDiv.textContent = 'Verbindungsfehler: ' + err.message;
+    }
+});
+</script>
+{% endblock %}
