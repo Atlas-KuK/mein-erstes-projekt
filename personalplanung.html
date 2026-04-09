@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personalplanung – Events April/Mai 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a1a;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+      color: #1a1a2e;
+    }
+    .subtitle {
+      color: #555;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    .event-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+
+    .event-header {
+      padding: 16px 20px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .event-header.green  { background: #1b7a3e; }
+    .event-header.blue   { background: #1a4fa0; }
+    .event-header.orange { background: #b84e00; }
+
+    .event-header h2 { font-size: 1.2rem; }
+    .event-header .meta { font-size: 0.85rem; opacity: 0.9; }
+
+    .event-body { padding: 16px 20px; }
+
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #888;
+      margin: 14px 0 8px;
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-item {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+    }
+    .info-item strong { display: block; color: #444; margin-bottom: 2px; }
+
+    .badge {
+      display: inline-block;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin: 2px 3px 2px 0;
+    }
+    .badge.ok      { background: #d4edda; color: #155724; }
+    .badge.needed  { background: #fff3cd; color: #856404; }
+    .badge.missing { background: #f8d7da; color: #721c24; }
+    .badge.info    { background: #d1ecf1; color: #0c5460; }
+
+    /* WhatsApp Nachrichten */
+    .wa-block {
+      background: #e9f5ec;
+      border-left: 4px solid #25d366;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 14px;
+      margin: 8px 0;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .wa-block:hover { background: #d5eddb; }
+
+    .wa-block .wa-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #1a7a3e;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .wa-block .copy-hint {
+      font-size: 0.72rem;
+      color: #555;
+      font-weight: 400;
+    }
+    .wa-text { color: #1a1a1a; line-height: 1.5; }
+
+    .note-box {
+      background: #fff8e1;
+      border-left: 4px solid #f0a500;
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      font-size: 0.87rem;
+      margin: 8px 0;
+      line-height: 1.5;
+    }
+
+    .staff-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+    .staff-table th {
+      text-align: left;
+      padding: 7px 10px;
+      background: #f0f2f5;
+      font-weight: 600;
+      color: #444;
+    }
+    .staff-table td {
+      padding: 7px 10px;
+      border-top: 1px solid #eee;
+    }
+
+    .copy-btn {
+      display: inline-block;
+      background: #25d366;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .copy-btn:hover { background: #1da550; }
+
+    footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.78rem;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Personalplanung – Events April / Mai 2026</h1>
+<p class="subtitle">Erstellt: 09.04.2026 · 3 Veranstaltungen · WhatsApp-Vorlagen zum Kopieren</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     EVENT 1 – TANZ IN DEN MAI · SCHÄNKE 1998
+═══════════════════════════════════════════════════════ -->
+<div class="event-card">
+  <div class="event-header green">
+    <h2>Tanz in den Mai – Schänke 1998</h2>
+    <div class="meta">Donnerstag, 30. April 2026 · Abend/Nacht</div>
+  </div>
+  <div class="event-body">
+
+    <div class="section-title">Personalübersicht</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>Servicekräfte (gesamt 3)</strong>
+        <span class="badge ok">Janni – Eintritt</span>
+        <span class="badge ok">Laki – Service</span>
+        <span class="badge needed">1× Service noch anfragen</span>
+      </div>
+      <div class="info-item">
+        <strong>Security (1 Person)</strong>
+        <span class="badge info">SFP Marvin Brösecke</span>
+        (Eintrittsüberwachung, bereits koordiniert)
+      </div>
+    </div>
+    <div class="note-box">
+      ⚠️ <strong>Iris König</strong> hat Urlaub – kein Einsatz möglich.
+    </div>
+
+    <div class="section-title">Bezahlung / Ablauf</div>
+    <div class="info-item" style="margin-bottom:8px">
+      Ausschließlich über <strong>Verzehrkarten</strong> (10 € / 20 € / 50 €).
+      Akzeptierte Zahlungsmittel: Bargeld · EC-Karte · Bezahlcodes.
+    </div>
+
+    <div class="section-title">WhatsApp-Vorlagen</div>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Janni <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey Janni 👋
+
+ich wollte kurz fragen, ob du am *30. April (Tanz in den Mai)* in der *Schänke 1998* arbeiten kannst? 🎉
+
+Ich würde dich für den *Eintrittsdienst* einplanen – du kümmerst dich um die Einlassdose.
+Bezahlt wird nur über Verzehrkarten (10/20/50 €), also kein Bargeld direkt an der Tür.
+
+Bitte kurz Rückmeldung ob du kannst! 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Laki <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey Laki 👋
+
+kannst du am *30. April (Tanz in den Mai)* in der *Schänke 1998* kellnern?
+
+Du wärst einer von zwei Servicekräften, die für den Ausschank / Service eingeplant sind.
+Bezahlung läuft über Verzehrkarten (10/20/50 €) – Bargeld, EC und Bezahlcodes werden akzeptiert.
+
+Kurze Rückmeldung wäre super! 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Servicekraft (noch offen) <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+kurze Anfrage: Hast du am *30. April* Zeit? Wir suchen noch eine *Servicekraft* für den *Tanz in den Mai* in der *Schänke 1998*.
+
+Aufgabe: Kellnern / Ausschank
+Bezahlung über Verzehrkarten – Bargeld, EC und Bezahlcodes werden akzeptiert.
+
+Kannst du? Bitte kurz Bescheid geben 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     EVENT 2 – TANZ IN DEN MAI · METTGENPIN 1877
+═══════════════════════════════════════════════════════ -->
+<div class="event-card">
+  <div class="event-header blue">
+    <h2>Tanz in den Mai – Mettgenpin 1877</h2>
+    <div class="meta">Donnerstag, 30. April 2026 · Biergarten ab 16 Uhr · Party ab 19 Uhr</div>
+  </div>
+  <div class="event-body">
+
+    <div class="section-title">Personalübersicht</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>Servicekräfte</strong>
+        <span class="badge needed">Anzahl noch festlegen</span>
+        <span class="badge needed">Biergarten ab 16 Uhr</span>
+        <span class="badge needed">Indoor ab 19 Uhr</span>
+      </div>
+      <div class="info-item">
+        <strong>Security (2 Personen)</strong>
+        <span class="badge info">SFP – Tor (Ein-/Ausgang)</span>
+        Spätere Stunden ggf. Indoor-Eingang
+      </div>
+    </div>
+    <div class="info-item" style="margin-bottom:8px">
+      <strong>DJ</strong> Dominik Wallott (bereits bestätigt)
+    </div>
+    <div class="note-box">
+      ℹ️ <strong>10 € Mindestverzehr</strong>, kein Eintrittsgeld.
+      Biergarten öffnet bei gutem Wetter ab 16 Uhr · Lautsprecher auch draußen.
+    </div>
+
+    <div class="section-title">Bezahlung / Ablauf</div>
+    <div class="info-item" style="margin-bottom:8px">
+      Ausschließlich über <strong>Verzehrkarten</strong> (10 € / 20 € / 50 €).
+      Akzeptierte Zahlungsmittel: Bargeld · EC-Karte · Bezahlcodes.
+      10 € Mindestverzehr – kein Eintrittsgeld.
+    </div>
+
+    <div class="section-title">WhatsApp-Vorlagen</div>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Servicekraft (Biergarten + Indoor) <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+Anfrage für den *30. April (Tanz in den Mai)* bei uns im *Mettgenpin 1877* – wäre das was für dich?
+
+📌 Details:
+• Biergarten öffnet bei gutem Wetter ab *16 Uhr*
+• Party innen ab *19 Uhr* (mit DJ Dominik Wallott, Lautsprecher auch draußen)
+• 10 € Mindestverzehr, kein Eintritt
+• Bezahlung nur über Verzehrkarten (10/20/50 €) – Bargeld, EC, Bezahlcodes
+
+Hast du Interesse und Zeit? Kurze Rückmeldung 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: SFP Security (2 Personen) <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+ich brauche am *30. April* *2 Security-Kräfte* für den *Tanz in den Mai im Mettgenpin 1877*.
+
+📌 Einsatz:
+• Position: *Tor (Haupt-Ein-/Ausgang)*
+• Später ggf. Verlagerung an Indoor-Eingang
+• Abend-/Nachteinsatz
+
+Kannst du das übernehmen / jemanden mitbringen?
+Bitte kurz melden 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     EVENT 3 – FIRMENJUBILÄUM HARTWIG & SCHWIBBE
+═══════════════════════════════════════════════════════ -->
+<div class="event-card">
+  <div class="event-header orange">
+    <h2>Firmenjubiläum Hartwig &amp; Schwibbe – 30 Jahre</h2>
+    <div class="meta">Freitag, 1. Mai 2026 · 12:00–20:00 Uhr · Firmengelände Solingen · 150 Pax</div>
+  </div>
+  <div class="event-body">
+
+    <div class="section-title">Auftrag (Auftragsbestätigung AB0013)</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>Auftraggeber</strong>
+        Hartwig &amp; Schwibbe GmbH<br>
+        Ansprechpartner: Miriam Wagemann<br>
+        Ort: Firmengelände Solingen
+      </div>
+      <div class="info-item">
+        <strong>Preis</strong>
+        13.350,00 € (netto)<br>
+        15.886,50 € (brutto inkl. 19% USt)<br>
+        Anzahlung 20% bei Auftrag
+      </div>
+    </div>
+
+    <div class="section-title">Personalplan nach Aufgaben</div>
+    <table class="staff-table">
+      <thead>
+        <tr>
+          <th>Aufgabe</th>
+          <th>Anzahl</th>
+          <th>Zeit</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Aufbau (Stationen, Infrastruktur)</td>
+          <td>5 Personen</td>
+          <td>vor 12:00 Uhr</td>
+          <td><span class="badge needed">anfragen</span></td>
+        </tr>
+        <tr>
+          <td>Cateringstation: Imbiss (Bratwurst etc.)</td>
+          <td>1–2 Personen</td>
+          <td>12:00–20:00</td>
+          <td><span class="badge needed">anfragen</span></td>
+        </tr>
+        <tr>
+          <td>Cateringstation: Griechischer Grillstand</td>
+          <td>1–2 Personen</td>
+          <td>12:00–20:00</td>
+          <td><span class="badge needed">anfragen</span></td>
+        </tr>
+        <tr>
+          <td>Cateringstation: Vegetarisch/Vegan</td>
+          <td>1 Person</td>
+          <td>12:00–20:00</td>
+          <td><span class="badge needed">anfragen</span></td>
+        </tr>
+        <tr>
+          <td>Getränkeausgabe / Bierwagen</td>
+          <td>1–2 Personen</td>
+          <td>12:00–20:00</td>
+          <td><span class="badge needed">anfragen</span></td>
+        </tr>
+        <tr>
+          <td>Koordination / Ansprechpartner vor Ort</td>
+          <td>1 Person</td>
+          <td>ganztags</td>
+          <td><span class="badge needed">anfragen</span></td>
+        </tr>
+        <tr>
+          <td>Abbau (Sonntag/Montag nach Event)</td>
+          <td>5 Personen</td>
+          <td>So/Mo nach Event</td>
+          <td><span class="badge needed">anfragen</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note-box" style="margin-top:12px">
+      ℹ️ <strong>Änderung vom 02.04.2026:</strong> Punkte 6, 7, 8 der Auftragsbestätigung beachten (WhatsApp mit Miriam).
+      Kühlanhänger muss mindestens 1 Tag vorher gestellt &amp; gekühlt werden – Absprache mit Lieferant nötig.
+    </div>
+
+    <div class="section-title">Cateringangebot Übersicht</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>Essen</strong>
+        Bratwurst · Currywurst · Frikadelle · Hähnchen<br>
+        Gyros · Bifteki · Zaziki · Djuvec Reis · Pita<br>
+        Drillinge mit Pilzen · Zaziki (veg.)
+      </div>
+      <div class="info-item">
+        <strong>Getränke</strong>
+        Afri Cola · Bluna · Wasser · Säfte<br>
+        Grand Sud Merlot &amp; Chardonnay · Prosecco<br>
+        Brinkhoff · Starnberger · Krombacher (Weizen, 0,0%)<br>
+        Lillet Wild Berry · Aperol Spritz
+      </div>
+    </div>
+
+    <div class="section-title">WhatsApp-Vorlagen</div>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Aufbauteam (5 Personen) <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+wir haben am *1. Mai* einen größeren Auftrag in *Solingen* (Firmenjubiläum, 150 Gäste) und suchen noch *Aufbaupersonal*.
+
+📌 Einsatz:
+• Aufbau der Catering-Stationen, Infrastruktur, Kühlung
+• *Vor 12:00 Uhr* (genaue Anfangszeit folgt noch)
+• Anfahrt Firmengelände Solingen
+
+Hast du Zeit und Lust? Wäre klasse! Bitte kurz Rückmeldung 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Servicepersonal Stationen (Catering) <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+Anfrage für den *1. Mai (Feiertag)* – Firmenjubiläum in *Solingen*, 150 Gäste.
+
+📌 Details:
+• Zeit: *12:00–20:00 Uhr*
+• Deine Aufgabe: [Imbissstation / Grillstand / Getränkeausgabe – bitte anpassen]
+• Mehrere Essenrunden (2–4x pro Gast), durchgehendes Catering
+• Verpflegung vor Ort für uns selbstverständlich
+
+Kannst du das? Würde mich freuen! Kurze Antwort reicht 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Abbauteam (5 Personen – So/Mo) <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+ich brauche noch Leute für den *Abbau* nach dem Firmenjubiläum in *Solingen* (1. Mai).
+
+📌 Einsatz:
+• *Sonntag und/oder Montag* (2./3. Mai) nach dem Event
+• Abbau Catering-Stationen, Rückbau Infrastruktur, Grobreinigung
+• 5 Personen insgesamt
+
+Wärst du an einem (oder beiden) Tagen dabei?
+Bitte kurz Rückmeldung 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+  </div>
+</div>
+
+<footer>mp1877.de · Personalplanung Events April/Mai 2026 · Letzte Aktualisierung: 09.04.2026</footer>
+
+<script>
+  function copyText(el) {
+    const textEl = el.querySelector ? el.querySelector('.wa-text') : el.querySelector('.wa-text');
+    const text = textEl ? textEl.innerText : '';
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const label = el.querySelector('.copy-hint');
+      if (label) {
+        const orig = label.innerText;
+        label.innerText = '✅ Kopiert!';
+        setTimeout(() => { label.innerText = orig; }, 1800);
+      }
+    }).catch(() => {
+      // Fallback
+      const range = document.createRange();
+      range.selectNodeContents(textEl);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      document.execCommand('copy');
+    });
+  }
+</script>
+
+</body>
+</html>
