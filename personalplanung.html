@@ -580,11 +580,287 @@ Kurze Rückmeldung 🙏</div>
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════
+     SCHICHTPLANUNG METTGENPIN 1877 – GELÄNDEÜBERSICHT
+═══════════════════════════════════════════════════════ -->
+<div class="event-card">
+  <div class="event-header" style="background:#4a235a;">
+    <h2>Schichtplanung – Mettgenpin 1877</h2>
+    <div class="meta">Geländeübersicht · Positionen · Mitarbeiterzuweisung</div>
+  </div>
+  <div class="event-body">
+
+    <div class="section-title">Geländeübersicht (nach Grundriss)</div>
+
+    <!-- Vereinfachter Grundriss als CSS-Layout -->
+    <div style="overflow-x:auto; margin-bottom:16px;">
+    <div style="display:grid; grid-template-columns:160px 160px 260px 120px; grid-template-rows:auto auto; gap:6px; min-width:720px; font-size:0.82rem;">
+
+      <!-- Zeile 1: oben -->
+      <div style="background:#e8d5f5;border:2px solid #7b3fa0;border-radius:6px;padding:8px 10px;grid-column:1;grid-row:1;">
+        <strong style="color:#4a235a;">Gastraum 3</strong><br>
+        <span style="color:#666;">28 m²</span><br>
+        <span style="color:#4a235a;font-size:0.75rem;">Läufer-Zone</span>
+      </div>
+      <div style="background:#fce8b2;border:2px solid #e6a817;border-radius:6px;padding:8px 10px;grid-column:2;grid-row:1;">
+        <strong style="color:#7a4b00;">Küche</strong><br>
+        <span style="color:#666;">24 m²</span><br>
+        <span style="color:#7a4b00;font-size:0.75rem;">intern</span>
+      </div>
+      <div style="background:#c8e6c9;border:2px dashed #388e3c;border-radius:6px;padding:8px 10px;grid-column:3;grid-row:1;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;">
+        <strong style="color:#1b5e20;font-size:0.95rem;">Biergarten</strong><br>
+        <span style="color:#2e7d32;font-weight:700;">200 Personen</span><br>
+        <span style="color:#388e3c;font-size:0.75rem;">Außenbereich Theke · Läufer</span>
+      </div>
+      <div style="background:#b2dfdb;border:2px solid #00796b;border-radius:6px;padding:8px 10px;grid-column:4;grid-row:1;text-align:center;">
+        <strong style="color:#004d40;">Lounge</strong><br>
+        <span style="color:#666;font-size:0.75rem;">Sundwiger Bach</span><br>
+        <span style="color:#00796b;font-size:0.75rem;">VIP/Extra</span>
+      </div>
+
+      <!-- Zeile 2: unten -->
+      <div style="background:#e8d5f5;border:2px solid #7b3fa0;border-radius:6px;padding:8px 10px;grid-column:1;grid-row:2;">
+        <strong style="color:#4a235a;">Gastraum 2</strong><br>
+        <span style="color:#666;">40 m²</span><br>
+        <span style="color:#4a235a;font-size:0.75rem;">Läufer-Zone</span>
+      </div>
+      <div style="background:#ffcdd2;border:2px solid #c62828;border-radius:6px;padding:8px 10px;grid-column:2;grid-row:2;">
+        <strong style="color:#b71c1c;">Gastraum 1</strong><br>
+        <span style="color:#c62828;font-weight:700;">Ausschank · 43 m²</span><br>
+        <span style="color:#b71c1c;font-size:0.75rem;">Innentheke · Cocktails</span>
+      </div>
+      <div style="background:#fff9c4;border:2px solid #f9a825;border-radius:6px;padding:8px 10px;grid-column:3;grid-row:2;display:flex;align-items:center;gap:12px;">
+        <div>
+          <strong style="color:#7a4b00;">Parkplatz / Eingang</strong><br>
+          <span style="color:#666;font-size:0.75rem;">Security: SFP am Tor</span>
+        </div>
+      </div>
+      <div style="background:#f5f5f5;border:2px solid #bbb;border-radius:6px;padding:8px 10px;grid-column:4;grid-row:2;text-align:center;color:#888;font-size:0.78rem;">
+        Parkplätze<br>Nachbarn
+      </div>
+
+    </div>
+    </div>
+
+    <!-- Positions-Karten -->
+    <div class="section-title">Positionen & Besetzung</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px;">
+
+      <div style="border:2px solid #c62828;border-radius:10px;padding:12px;background:#fff5f5;">
+        <div style="font-weight:700;color:#b71c1c;margin-bottom:6px;">🍺 Innenbereich Theke</div>
+        <div style="font-size:0.8rem;color:#666;margin-bottom:8px;">Gastraum 1 – Ausschank<br>Bier, Wein, Shots, Soft</div>
+        <div class="slot-row" data-pos="innen-theke">
+          <input type="text" placeholder="Person 1" class="slot-input">
+          <input type="text" placeholder="Person 2" class="slot-input">
+        </div>
+      </div>
+
+      <div style="border:2px solid #2e7d32;border-radius:10px;padding:12px;background:#f1f8f1;">
+        <div style="font-weight:700;color:#1b5e20;margin-bottom:6px;">🌿 Außenbereich Theke</div>
+        <div style="font-size:0.8rem;color:#666;margin-bottom:8px;">Biergarten – 200 Pers.<br>Bier, Soft, Ausgabe</div>
+        <div class="slot-row">
+          <input type="text" placeholder="Person 1" class="slot-input">
+          <input type="text" placeholder="Person 2" class="slot-input">
+        </div>
+      </div>
+
+      <div style="border:2px solid #1565c0;border-radius:10px;padding:12px;background:#f0f4ff;">
+        <div style="font-weight:700;color:#0d47a1;margin-bottom:6px;">🏃 Läufer</div>
+        <div style="font-size:0.8rem;color:#666;margin-bottom:8px;">Gastraum 2 + 3 + Biergarten<br>Service, Abräumen, Ausgabe</div>
+        <div class="slot-row">
+          <input type="text" placeholder="Person 1" class="slot-input">
+          <input type="text" placeholder="Person 2" class="slot-input">
+          <input type="text" placeholder="Person 3" class="slot-input">
+        </div>
+      </div>
+
+      <div style="border:2px solid #6a1b9a;border-radius:10px;padding:12px;background:#f9f0ff;">
+        <div style="font-weight:700;color:#4a235a;margin-bottom:6px;">🍹 Cocktailtheke</div>
+        <div style="font-size:0.8rem;color:#666;margin-bottom:8px;">Gastraum 1 / separate Station<br>Lillet, Aperol, Mixdrinks</div>
+        <div class="slot-row">
+          <input type="text" placeholder="Person 1" class="slot-input">
+          <input type="text" placeholder="Person 2" class="slot-input">
+        </div>
+      </div>
+
+      <div style="border:2px solid #e65100;border-radius:10px;padding:12px;background:#fff8f0;">
+        <div style="font-weight:700;color:#bf360c;margin-bottom:6px;">⚡ Springer</div>
+        <div style="font-size:0.8rem;color:#666;margin-bottom:8px;">Flexibel · alle Bereiche<br>Backup, Engpass abdecken</div>
+        <div class="slot-row">
+          <input type="text" placeholder="Person 1" class="slot-input">
+        </div>
+      </div>
+
+      <div style="border:2px solid #555;border-radius:10px;padding:12px;background:#f5f5f5;">
+        <div style="font-weight:700;color:#333;margin-bottom:6px;">🔒 Security</div>
+        <div style="font-size:0.8rem;color:#666;margin-bottom:8px;">SFP via Marvin Brösecke<br>Tor + ggf. Indoor-Eingang</div>
+        <div class="slot-row">
+          <input type="text" placeholder="SFP 1" class="slot-input">
+          <input type="text" placeholder="SFP 2" class="slot-input">
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:right;margin-bottom:4px;">
+      <button onclick="clearSlots()" style="background:#eee;border:1px solid #ccc;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:0.82rem;color:#555;">Felder leeren</button>
+      <button onclick="exportPlan()" style="background:#4a235a;color:#fff;border:none;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:0.82rem;margin-left:6px;">Plan als Text kopieren</button>
+    </div>
+
+    <div id="plan-output" style="display:none;background:#f0f2f5;border-radius:8px;padding:12px;font-size:0.85rem;white-space:pre-wrap;margin-top:8px;"></div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     LUCKY EVENT – PLANUNGSVORLAGE
+═══════════════════════════════════════════════════════ -->
+<div class="event-card">
+  <div class="event-header" style="background:#0d5c8a;">
+    <h2>Lucky Event – Planungsvorlage</h2>
+    <div class="meta">Wiederverwendbare Vorlage für jeden Einsatz</div>
+  </div>
+  <div class="event-body">
+
+    <div class="section-title">Eventdaten</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <div class="info-item">
+        <strong>Veranstaltungsname</strong>
+        <input type="text" id="le-name" placeholder="z.B. Hochzeit Müller" style="width:100%;margin-top:4px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:0.87rem;">
+      </div>
+      <div class="info-item">
+        <strong>Datum / Uhrzeit</strong>
+        <input type="text" id="le-datum" placeholder="z.B. 15.05.2026, 17:00–23:00" style="width:100%;margin-top:4px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:0.87rem;">
+      </div>
+      <div class="info-item">
+        <strong>Location</strong>
+        <input type="text" id="le-location" placeholder="z.B. Mettgenpin 1877 / extern" style="width:100%;margin-top:4px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:0.87rem;">
+      </div>
+      <div class="info-item">
+        <strong>Gästeanzahl</strong>
+        <input type="text" id="le-gaeste" placeholder="z.B. 80 Pax" style="width:100%;margin-top:4px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:0.87rem;">
+      </div>
+      <div class="info-item">
+        <strong>Ansprechpartner Kunde</strong>
+        <input type="text" id="le-kunde" placeholder="Name + Telefon" style="width:100%;margin-top:4px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:0.87rem;">
+      </div>
+      <div class="info-item">
+        <strong>Besonderheiten</strong>
+        <input type="text" id="le-notes" placeholder="z.B. Buffet, DJ, Dekoration…" style="width:100%;margin-top:4px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:0.87rem;">
+      </div>
+    </div>
+
+    <div class="section-title">Personaleinsatz</div>
+    <div id="le-positions" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:12px;">
+
+      <div class="le-pos-card" style="border:2px solid #1565c0;border-radius:10px;padding:12px;background:#f0f4ff;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <input type="text" value="Innenbereich Theke" class="le-pos-title" style="font-weight:700;color:#0d47a1;border:none;background:transparent;font-size:0.9rem;width:85%;">
+        </div>
+        <div class="le-slots">
+          <input type="text" placeholder="Person 1" class="slot-input">
+          <input type="text" placeholder="Person 2" class="slot-input">
+        </div>
+        <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+      </div>
+
+      <div class="le-pos-card" style="border:2px solid #2e7d32;border-radius:10px;padding:12px;background:#f1f8f1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <input type="text" value="Außenbereich Theke" class="le-pos-title" style="font-weight:700;color:#1b5e20;border:none;background:transparent;font-size:0.9rem;width:85%;">
+        </div>
+        <div class="le-slots">
+          <input type="text" placeholder="Person 1" class="slot-input">
+        </div>
+        <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+      </div>
+
+      <div class="le-pos-card" style="border:2px solid #0d5c8a;border-radius:10px;padding:12px;background:#e8f4fd;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <input type="text" value="Läufer" class="le-pos-title" style="font-weight:700;color:#0d5c8a;border:none;background:transparent;font-size:0.9rem;width:85%;">
+        </div>
+        <div class="le-slots">
+          <input type="text" placeholder="Person 1" class="slot-input">
+          <input type="text" placeholder="Person 2" class="slot-input">
+        </div>
+        <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+      </div>
+
+      <div class="le-pos-card" style="border:2px solid #6a1b9a;border-radius:10px;padding:12px;background:#f9f0ff;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <input type="text" value="Cocktailtheke" class="le-pos-title" style="font-weight:700;color:#4a235a;border:none;background:transparent;font-size:0.9rem;width:85%;">
+        </div>
+        <div class="le-slots">
+          <input type="text" placeholder="Person 1" class="slot-input">
+        </div>
+        <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+      </div>
+
+      <div class="le-pos-card" style="border:2px solid #e65100;border-radius:10px;padding:12px;background:#fff8f0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <input type="text" value="Springer" class="le-pos-title" style="font-weight:700;color:#bf360c;border:none;background:transparent;font-size:0.9rem;width:85%;">
+        </div>
+        <div class="le-slots">
+          <input type="text" placeholder="Person 1" class="slot-input">
+        </div>
+        <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+      </div>
+
+      <div class="le-pos-card" style="border:2px solid #555;border-radius:10px;padding:12px;background:#f5f5f5;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <input type="text" value="Security" class="le-pos-title" style="font-weight:700;color:#333;border:none;background:transparent;font-size:0.9rem;width:85%;">
+        </div>
+        <div class="le-slots">
+          <input type="text" placeholder="Person 1" class="slot-input">
+        </div>
+        <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+      </div>
+
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <button onclick="addPosition()" style="background:#0d5c8a;color:#fff;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:0.85rem;">+ Position hinzufügen</button>
+      <button onclick="exportLuckyEvent()" style="background:#1b7a3e;color:#fff;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:0.85rem;margin-left:8px;">Plan exportieren / kopieren</button>
+      <button onclick="clearLuckyEvent()" style="background:#eee;border:1px solid #ccc;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:0.85rem;margin-left:8px;color:#555;">Felder leeren</button>
+    </div>
+
+    <div id="le-output" style="display:none;background:#f0f2f5;border-radius:8px;padding:14px;font-size:0.87rem;white-space:pre-wrap;border-left:4px solid #0d5c8a;"></div>
+
+  </div>
+</div>
+
+<style>
+  .slot-input {
+    display:block;
+    width:100%;
+    padding:5px 8px;
+    margin-bottom:5px;
+    border:1px solid #ddd;
+    border-radius:6px;
+    font-size:0.85rem;
+    background:#fff;
+  }
+  .slot-input:focus { outline:none; border-color:#888; }
+  .add-slot-btn {
+    background:transparent;
+    border:1px dashed #aaa;
+    border-radius:6px;
+    padding:3px 10px;
+    font-size:0.78rem;
+    cursor:pointer;
+    color:#888;
+    margin-top:2px;
+    width:100%;
+  }
+  .add-slot-btn:hover { border-color:#555; color:#333; }
+  .le-pos-title { outline:none; }
+  .le-pos-title:focus { border-bottom:1px dashed #aaa !important; }
+</style>
+
 <footer>mp1877.de · Personalplanung Events April/Mai 2026 · Letzte Aktualisierung: 09.04.2026</footer>
 
 <script>
   function copyText(el) {
-    const textEl = el.querySelector ? el.querySelector('.wa-text') : el.querySelector('.wa-text');
+    const textEl = el.querySelector('.wa-text');
     const text = textEl ? textEl.innerText : '';
     if (!text) return;
     navigator.clipboard.writeText(text).then(() => {
@@ -595,13 +871,108 @@ Kurze Rückmeldung 🙏</div>
         setTimeout(() => { label.innerText = orig; }, 1800);
       }
     }).catch(() => {
-      // Fallback
       const range = document.createRange();
       range.selectNodeContents(textEl);
       window.getSelection().removeAllRanges();
       window.getSelection().addRange(range);
       document.execCommand('copy');
     });
+  }
+
+  // ── Mettgenpin Schichtplan ──────────────────────────────
+  function clearSlots() {
+    document.querySelectorAll('.slot-row .slot-input').forEach(i => i.value = '');
+  }
+
+  function exportPlan() {
+    const positions = [
+      { label: '🍺 Innenbereich Theke', selector: '.slot-row' },
+    ];
+    const cards = document.querySelectorAll('[style*="border:2px solid #c62828"], [style*="border:2px solid #2e7d32"], [style*="border:2px solid #1565c0"], [style*="border:2px solid #6a1b9a"], [style*="border:2px solid #e65100"], [style*="border:2px solid #555"]');
+    let text = '📋 SCHICHTPLAN METTGENPIN 1877\n';
+    text += '─'.repeat(34) + '\n';
+    const labels = ['🍺 Innenbereich Theke','🌿 Außenbereich Theke','🏃 Läufer','🍹 Cocktailtheke','⚡ Springer','🔒 Security'];
+    cards.forEach((card, i) => {
+      const inputs = card.querySelectorAll('.slot-input');
+      const names = Array.from(inputs).map(inp => inp.value.trim()).filter(Boolean);
+      text += `\n${labels[i] || 'Position'}:\n`;
+      text += names.length ? names.map(n => `  • ${n}`).join('\n') : '  – (offen)';
+      text += '\n';
+    });
+    const out = document.getElementById('plan-output');
+    out.style.display = 'block';
+    out.textContent = text;
+    navigator.clipboard.writeText(text).catch(() => {});
+  }
+
+  // ── Lucky Event ─────────────────────────────────────────
+  function addSlot(btn) {
+    const container = btn.previousElementSibling;
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.placeholder = 'Person ' + (container.children.length + 1);
+    inp.className = 'slot-input';
+    container.appendChild(inp);
+  }
+
+  let posCounter = 0;
+  function addPosition() {
+    posCounter++;
+    const colors = ['#c62828','#00796b','#1565c0','#6a1b9a','#e65100','#555','#2e7d32','#0d5c8a'];
+    const bgs    = ['#fff5f5','#e0f2f1','#f0f4ff','#f9f0ff','#fff8f0','#f5f5f5','#f1f8f1','#e8f4fd'];
+    const c = colors[posCounter % colors.length];
+    const bg = bgs[posCounter % bgs.length];
+    const div = document.createElement('div');
+    div.className = 'le-pos-card';
+    div.style.cssText = `border:2px solid ${c};border-radius:10px;padding:12px;background:${bg};`;
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <input type="text" value="Neue Position" class="le-pos-title" style="font-weight:700;color:${c};border:none;background:transparent;font-size:0.9rem;width:85%;">
+      </div>
+      <div class="le-slots">
+        <input type="text" placeholder="Person 1" class="slot-input">
+      </div>
+      <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>`;
+    document.getElementById('le-positions').appendChild(div);
+  }
+
+  function exportLuckyEvent() {
+    const name     = document.getElementById('le-name').value || '–';
+    const datum    = document.getElementById('le-datum').value || '–';
+    const location = document.getElementById('le-location').value || '–';
+    const gaeste   = document.getElementById('le-gaeste').value || '–';
+    const kunde    = document.getElementById('le-kunde').value || '–';
+    const notes    = document.getElementById('le-notes').value || '–';
+
+    let text = `🍀 LUCKY EVENT – EINSATZPLAN\n${'─'.repeat(34)}\n`;
+    text += `Veranstaltung : ${name}\n`;
+    text += `Datum/Zeit    : ${datum}\n`;
+    text += `Location      : ${location}\n`;
+    text += `Gäste         : ${gaeste}\n`;
+    text += `Ansprechpartner: ${kunde}\n`;
+    text += `Notizen       : ${notes}\n`;
+    text += `${'─'.repeat(34)}\nPERSONALEINSATZ\n`;
+
+    document.querySelectorAll('.le-pos-card').forEach(card => {
+      const title = card.querySelector('.le-pos-title').value || 'Position';
+      const inputs = card.querySelectorAll('.slot-input');
+      const names = Array.from(inputs).map(i => i.value.trim()).filter(Boolean);
+      text += `\n${title}:\n`;
+      text += names.length ? names.map(n => `  • ${n}`).join('\n') : '  – (offen)';
+      text += '\n';
+    });
+
+    const out = document.getElementById('le-output');
+    out.style.display = 'block';
+    out.textContent = text;
+    navigator.clipboard.writeText(text).catch(() => {});
+  }
+
+  function clearLuckyEvent() {
+    ['le-name','le-datum','le-location','le-gaeste','le-kunde','le-notes']
+      .forEach(id => document.getElementById(id).value = '');
+    document.querySelectorAll('.le-pos-card .slot-input').forEach(i => i.value = '');
+    document.getElementById('le-output').style.display = 'none';
   }
 </script>
 
