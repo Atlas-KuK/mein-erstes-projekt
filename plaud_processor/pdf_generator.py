@@ -194,17 +194,17 @@ def _parse_content(text: str, story: list, styles):
 
 def _clean_markdown(text: str) -> str:
     """Markdown-Formatierung fuer ReportLab aufbereiten."""
-    # Fett → ReportLab Bold
-    text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
-    # Kursiv → ReportLab Italic
-    text = re.sub(r"\*(.+?)\*", r"<i>\1</i>", text)
-    # Sonderzeichen escapen
+    # 1. Zuerst & escapen (vor allem anderen)
     text = text.replace("&", "&amp;")
-    # Aber nicht die ReportLab-Tags zerstoeren
-    text = text.replace("&amp;amp;", "&amp;")
-    text = text.replace("<b>", "<<<B>>>").replace("</b>", "<<<EB>>>")
-    text = text.replace("<i>", "<<<I>>>").replace("</i>", "<<<EI>>>")
+
+    # 2. Markdown → Platzhalter (ohne spitze Klammern)
+    text = re.sub(r"\*\*(.+?)\*\*", r"__BOLD_START__\1__BOLD_END__", text)
+    text = re.sub(r"\*(.+?)\*", r"__ITALIC_START__\1__ITALIC_END__", text)
+
+    # 3. Restliche < > escapen
     text = text.replace("<", "&lt;").replace(">", "&gt;")
-    text = text.replace("<<<B>>>", "<b>").replace("<<<EB>>>", "</b>")
-    text = text.replace("<<<I>>>", "<i>").replace("<<<EI>>>", "</i>")
+
+    # 4. Platzhalter → ReportLab-Tags
+    text = text.replace("__BOLD_START__", "<b>").replace("__BOLD_END__", "</b>")
+    text = text.replace("__ITALIC_START__", "<i>").replace("__ITALIC_END__", "</i>")
     return text
