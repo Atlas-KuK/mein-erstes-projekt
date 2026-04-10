@@ -1,0 +1,14 @@
+# Geheime Zugangsdaten - NIEMALS committen
+.env
+.env.local
+.env.*.local
+
+# Abhängigkeiten
+node_modules/
+
+# Logs
+*.log
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
