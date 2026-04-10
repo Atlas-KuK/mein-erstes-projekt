@@ -16,6 +16,11 @@
       "sourceType": "github",
       "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
     },
+    "openrouter-integration": {
+      "source": "bnishit/openrouter-skill",
+      "sourceType": "github",
+      "computedHash": "1b7c01ee6fb381ecb58061da8829e3f538421e7674df89863eeaa5d148c4899b"
+    },
     "plugin": {
       "source": "local",
       "sourceType": "local"
