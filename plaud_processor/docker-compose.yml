@@ -1,0 +1,43 @@
+services:
+
+  # Hintergrund-Prozessor: Polling + Transkription + Analyse + PDF + E-Mail
+  plaud-processor:
+    build: .
+    container_name: plaud-processor
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - plaud-data:/data
+      # Watch-Ordner einbinden (Windows-Pfad wird in .env gesetzt)
+      # - ${PLAUD_WATCH_FOLDER}:/watch:ro
+      # PDF-Ausgabe-Ordner (OneDrive-Sync über Desktop-Client)
+      # - ${PDF_OUTPUT_FOLDER}:/data/output
+    environment:
+      - DATA_FOLDER=/data
+      - PDF_OUTPUT_FOLDER=/data/output
+    extra_hosts:
+      # Ollama auf dem Host-PC erreichbar machen
+      - "host.docker.internal:host-gateway"
+
+  # Web-UI auf Port 8080
+  plaud-web:
+    build: .
+    container_name: plaud-web
+    restart: unless-stopped
+    command: uvicorn web_app:app --host 0.0.0.0 --port 8080 --workers 2
+    env_file: .env
+    ports:
+      - "8080:8080"
+    volumes:
+      - plaud-data:/data
+    environment:
+      - DATA_FOLDER=/data
+      - PDF_OUTPUT_FOLDER=/data/output
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - plaud-processor
+
+volumes:
+  plaud-data:
+    driver: local

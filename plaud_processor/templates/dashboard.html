@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Plaud Processor{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <p class="subtitle">{{ recordings|length }} Aufnahme(n) verarbeitet</p>
+</div>
+
+{% if recordings %}
+<div class="recordings-grid">
+  {% for rec in recordings %}
+  <div class="recording-card {% if rec.verarbeitet %}card-ok{% elif rec.fehler %}card-fehler{% else %}card-pending{% endif %}">
+    <div class="card-header">
+      <span class="dateiname">{{ rec.dateiname }}</span>
+      <span class="badge {% if rec.verarbeitet %}badge-ok{% elif rec.fehler %}badge-fehler{% else %}badge-pending{% endif %}">
+        {% if rec.verarbeitet %}fertig{% elif rec.fehler %}Fehler{% else %}ausstehend{% endif %}
+      </span>
+    </div>
+    <div class="card-meta">
+      <span>{{ rec.erstellt_am|replace("T", " ")|truncate(16, True, "") }}</span>
+      {% if rec.dauer_sek %}
+      <span>{{ (rec.dauer_sek / 60)|round(1) }} Min</span>
+      {% endif %}
+    </div>
+    {% if rec.protokoll and rec.protokoll.inhalt_html %}
+    <div class="card-zusammenfassung">
+      Protokoll: <strong>{{ rec.protokoll.vorlage }}</strong>
+    </div>
+    {% endif %}
+    {% if rec.fehler %}
+    <div class="card-fehler-text">{{ rec.fehler }}</div>
+    {% endif %}
+    <div class="card-actions">
+      <a href="/aufnahme/{{ rec.id }}" class="btn btn-sm">Details</a>
+      {% if rec.protokoll and rec.protokoll.pdf_pfad %}
+      <a href="/aufnahme/{{ rec.id }}/pdf" class="btn btn-sm btn-outline" target="_blank">PDF</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="leer-hinweis">
+  <h2>Noch keine Aufnahmen</h2>
+  <p>Lege Audiodateien in den Watch-Ordner oder lade per iPhone Shortcut hoch.</p>
+  <p><strong>Watch-Ordner:</strong> <code>{{ config.PLAUD_WATCH_FOLDER or "(nicht konfiguriert)" }}</code></p>
+  <p><strong>Upload-URL:</strong> <code>http://[PC-IP]:8080/api/upload</code></p>
+</div>
+{% endif %}
+{% endblock %}

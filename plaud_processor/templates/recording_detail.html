@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ rec.dateiname }} – Plaud Processor{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <a href="/" class="back-link">&larr; Zurück</a>
+  <h1>{{ rec.dateiname }}</h1>
+  <span class="badge {% if rec.verarbeitet %}badge-ok{% elif rec.fehler %}badge-fehler{% else %}badge-pending{% endif %}">
+    {% if rec.verarbeitet %}fertig{% elif rec.fehler %}Fehler{% else %}ausstehend{% endif %}
+  </span>
+</div>
+
+<div class="detail-grid">
+
+  <!-- Protokoll erstellen -->
+  <section class="card">
+    <h2>Protokoll erstellen</h2>
+    <form method="post" action="/aufnahme/{{ rec.id }}/protokoll">
+      <div class="form-row">
+        <label for="vorlage">Vorlage:</label>
+        <select name="vorlage" id="vorlage">
+          {% for key, v in vorlagen.items() %}
+          <option value="{{ key }}" {% if protokoll and protokoll.vorlage == key %}selected{% endif %}>
+            {{ v.name }} – {{ v.beschreibung }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn">Protokoll neu erstellen</button>
+    </form>
+  </section>
+
+  <!-- Sprecher-Zuweisung -->
+  {% if sprecher %}
+  <section class="card">
+    <h2>Sprecher benennen</h2>
+    {% for s in sprecher %}
+    <form method="post" action="/aufnahme/{{ rec.id }}/sprecher" class="sprecher-form">
+      <input type="hidden" name="sprecher_nr" value="{{ s.sprecher_nr }}">
+      <div class="form-row">
+        <label>Sprecher {{ s.sprecher_nr }}:</label>
+        <input type="text" name="name" value="{{ s.name or '' }}"
+               placeholder="Name eingeben">
+        <button type="submit" class="btn btn-sm">Speichern</button>
+      </div>
+    </form>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <!-- Protokoll-Vorschau -->
+  {% if protokoll and protokoll.inhalt_html %}
+  <section class="card protokoll-vorschau">
+    <div class="protokoll-aktionen">
+      <h2>Protokoll ({{ protokoll.vorlage }})</h2>
+      <a href="/aufnahme/{{ rec.id }}/pdf" class="btn" target="_blank">PDF herunterladen</a>
+    </div>
+    <div class="protokoll-inhalt">
+      {{ protokoll.inhalt_html|safe }}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Transkript -->
+  {% if transcript %}
+  <section class="card">
+    <h2>Transkript</h2>
+    <p class="meta">Modell: {{ transcript.modell }} | Sprache: {{ transcript.sprache }}</p>
+    <pre class="transkript-roh">{{ transcript.text }}</pre>
+  </section>
+  {% endif %}
+
+  <!-- Fehler-Info -->
+  {% if rec.fehler %}
+  <section class="card card-fehler">
+    <h2>Fehler</h2>
+    <pre>{{ rec.fehler }}</pre>
+  </section>
+  {% endif %}
+
+</div>
+{% endblock %}
