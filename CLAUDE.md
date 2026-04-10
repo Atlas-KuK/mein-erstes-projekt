@@ -20,6 +20,9 @@
 - JS: use ES6+ (const/let, arrow functions, template literals)
 - No external dependencies without discussion
 
+## Sync Rule
+- When a change is made to one CLAUDE.md, always ask if the same change should be applied to the other
+
 ## Testing
 - No test framework configured — test manually in browser
 - Check responsiveness with browser dev tools (mobile/tablet breakpoints)
