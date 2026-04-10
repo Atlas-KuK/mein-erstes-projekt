@@ -20,6 +20,11 @@
       "source": "local",
       "sourceType": "local"
     },
+    "seo-audit": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "computedHash": "1eef04180a5278a6869fab117c75fa2acf512bfda0a4b16569409b88b7bcb343"
+    },
     "using-superpowers": {
       "source": "obra/superpowers",
       "sourceType": "github",
