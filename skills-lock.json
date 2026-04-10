@@ -6,6 +6,16 @@
       "sourceType": "github",
       "computedHash": "8df9b47092524833138b58682d03f2e153a242e550d1693657afdbee0cc9cdb0"
     },
+    "code-review-excellence": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "0f585a4ad2f6d8353069ca9051c6f0e8865abb9d3a6a268d423784c3c3852962"
+    },
+    "comprehensive-review-full-review": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "061361d276392f305bef8c5a4537fa507ed77282dced7094eb5d83bf5813e62c"
+    },
     "context-engineering-collection": {
       "source": "muratcankoylan/Agent-Skills-for-Context-Engineering",
       "sourceType": "github",
