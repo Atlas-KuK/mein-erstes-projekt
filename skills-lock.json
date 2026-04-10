@@ -1,14 +1,19 @@
 {
   "version": 1,
   "skills": {
-    "using-superpowers": {
-      "source": "obra/superpowers",
+    "find-skills": {
+      "source": "vercel-labs/skills",
       "sourceType": "github",
-      "computedHash": "e0eced9fbb205c212f420aded0c6f2bf5d5f059254679a8459b4fe72390160be"
+      "computedHash": "d31e234f0c90694a670222cdd1dafa853e051d7066beda389f1097c22dadd461"
     },
     "plugin": {
       "source": "local",
       "sourceType": "local"
+    },
+    "using-superpowers": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "computedHash": "e0eced9fbb205c212f420aded0c6f2bf5d5f059254679a8459b4fe72390160be"
     }
   }
 }
