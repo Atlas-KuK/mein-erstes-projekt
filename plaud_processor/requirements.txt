@@ -1,0 +1,22 @@
+# Web-Framework
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+jinja2==3.1.4
+python-multipart==0.0.9
+
+# Konfiguration
+python-dotenv==1.0.1
+
+# Transkription (lokales Whisper)
+openai-whisper==20231117
+ffmpeg-python==0.2.0
+
+# KI-Fallback
+anthropic==0.29.0
+openai==1.35.3
+
+# PDF
+reportlab==4.2.2
+
+# HTTP
+requests==2.32.3

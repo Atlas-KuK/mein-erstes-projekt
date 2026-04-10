@@ -1,0 +1,173 @@
+:root {
+  --blau: #2563eb;
+  --blau-dunkel: #1d4ed8;
+  --grau: #6b7280;
+  --hell: #f9fafb;
+  --border: #e5e7eb;
+  --rot: #dc2626;
+  --gruen: #16a34a;
+  --gelb: #d97706;
+  --radius: 8px;
+  --schatten: 0 1px 3px rgba(0,0,0,.1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  color: #111;
+  background: var(--hell);
+  line-height: 1.5;
+}
+
+/* ── Navbar ───────────────────────────────────────────────────── */
+.navbar {
+  background: var(--blau);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+.nav-brand { color: #fff; font-weight: 700; font-size: 1.1rem; text-decoration: none; }
+.nav-links a { color: rgba(255,255,255,.85); text-decoration: none; margin-left: 1.25rem; font-size: 0.9rem; }
+.nav-links a:hover { color: #fff; }
+
+/* ── Container ────────────────────────────────────────────────── */
+.container { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+/* ── Warnungen ────────────────────────────────────────────────── */
+.warnungen { background: #fef3c7; border-bottom: 1px solid #fde68a; }
+.warnung { max-width: 1100px; margin: 0 auto; padding: 0.5rem 1rem; font-size: 0.88rem; color: #92400e; }
+
+/* ── Page Header ─────────────────────────────────────────────── */
+.page-header { margin-bottom: 1.5rem; }
+.page-header h1 { font-size: 1.6rem; margin-bottom: 0.2rem; }
+.subtitle { color: var(--grau); }
+.back-link { color: var(--blau); text-decoration: none; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; }
+.back-link:hover { text-decoration: underline; }
+
+/* ── Badges ─────────────────────────────────────────────────── */
+.badge {
+  display: inline-block; padding: 0.15rem 0.55rem;
+  border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+}
+.badge-ok { background: #dcfce7; color: var(--gruen); }
+.badge-fehler { background: #fee2e2; color: var(--rot); }
+.badge-pending { background: #fef3c7; color: var(--gelb); }
+
+/* ── Karten-Grid ─────────────────────────────────────────────── */
+.recordings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.recording-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--schatten);
+  border-left: 4px solid var(--border);
+}
+.card-ok { border-left-color: var(--gruen); }
+.card-fehler { border-left-color: var(--rot); }
+.card-pending { border-left-color: var(--gelb); }
+
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.4rem; }
+.dateiname { font-weight: 600; font-size: 0.92rem; word-break: break-all; }
+.card-meta { font-size: 0.82rem; color: var(--grau); margin-bottom: 0.5rem; display: flex; gap: 1rem; }
+.card-zusammenfassung { font-size: 0.85rem; color: #374151; margin-bottom: 0.6rem; }
+.card-fehler-text { font-size: 0.8rem; color: var(--rot); background: #fee2e2; padding: 0.35rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; }
+.card-actions { display: flex; gap: 0.5rem; }
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn {
+  display: inline-block; padding: 0.45rem 1rem;
+  background: var(--blau); color: #fff;
+  border: none; border-radius: var(--radius);
+  cursor: pointer; font-size: 0.88rem; text-decoration: none;
+  font-weight: 500; transition: background 0.15s;
+}
+.btn:hover { background: var(--blau-dunkel); }
+.btn-sm { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
+.btn-outline {
+  background: transparent; color: var(--blau);
+  border: 1px solid var(--blau);
+}
+.btn-outline:hover { background: var(--blau); color: #fff; }
+
+/* ── Detail-Grid ─────────────────────────────────────────────── */
+.detail-grid { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--schatten);
+}
+.card h2 { font-size: 1.1rem; margin-bottom: 0.9rem; color: var(--blau); }
+
+/* ── Formulare ───────────────────────────────────────────────── */
+.form-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+.form-row label { font-weight: 500; min-width: 90px; font-size: 0.9rem; }
+select, input[type="text"] {
+  flex: 1; padding: 0.4rem 0.7rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 0.9rem; background: #fff;
+}
+select:focus, input[type="text"]:focus { outline: 2px solid var(--blau); border-color: var(--blau); }
+
+/* ── Sprecher ────────────────────────────────────────────────── */
+.sprecher-form { margin-bottom: 0.5rem; }
+
+/* ── Protokoll-Vorschau ──────────────────────────────────────── */
+.protokoll-aktionen { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.protokoll-aktionen h2 { margin-bottom: 0; }
+.protokoll-inhalt { font-size: 0.9rem; }
+.protokoll-inhalt h1 { font-size: 1.3rem; color: var(--blau); margin-bottom: 0.3rem; }
+.protokoll-inhalt h3 { font-size: 1rem; color: var(--blau); margin: 1rem 0 0.3rem; }
+.protokoll-inhalt p { margin-bottom: 0.5rem; }
+.protokoll-inhalt ul { margin-left: 1.2rem; margin-bottom: 0.5rem; }
+.protokoll-inhalt .meta { color: var(--grau); font-size: 0.82rem; }
+.protokoll-inhalt .hinweis.datenschutz {
+  background: #fef3c7; color: #92400e;
+  padding: 0.4rem 0.75rem; border-radius: 4px;
+  font-size: 0.85rem; margin-bottom: 0.75rem;
+}
+.protokoll-inhalt hr { border: none; border-top: 1px solid var(--border); margin: 0.5rem 0; }
+
+/* ── Transkript ─────────────────────────────────────────────── */
+.transkript, .transkript-roh {
+  background: #f3f4f6; padding: 1rem; border-radius: var(--radius);
+  font-size: 0.82rem; line-height: 1.6;
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 400px; overflow-y: auto;
+}
+.meta { color: var(--grau); font-size: 0.83rem; margin-bottom: 0.5rem; }
+
+/* ── Leer-Hinweis ────────────────────────────────────────────── */
+.leer-hinweis {
+  text-align: center; padding: 3rem 1rem;
+  background: #fff; border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+.leer-hinweis h2 { margin-bottom: 0.75rem; color: var(--grau); }
+.leer-hinweis code { background: #f3f4f6; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.88rem; }
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.footer { text-align: center; padding: 1.5rem; font-size: 0.82rem; color: var(--grau); border-top: 1px solid var(--border); }
+
+/* ── Responsiv ──────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .recordings-grid { grid-template-columns: 1fr; }
+  .form-row { flex-direction: column; align-items: stretch; }
+  .protokoll-aktionen { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+}
