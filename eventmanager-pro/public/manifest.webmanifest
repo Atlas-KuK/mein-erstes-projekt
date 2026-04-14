@@ -1,0 +1,25 @@
+{
+  "name": "EventManager Pro",
+  "short_name": "EvtMgr",
+  "description": "Event- und Catering-Management für Lucky Event, Mettgenpin 1877 und Schänke 1998",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141925",
+  "theme_color": "#141925",
+  "orientation": "portrait-primary",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

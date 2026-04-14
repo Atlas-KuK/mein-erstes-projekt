@@ -1,0 +1,346 @@
+// EventManager Pro - Prisma Schema
+// Polikarpos Karafoulidis / Lucky Event / Mettgenpin 1877 / Schänke 1998
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================================================================
+// Enums
+// ===========================================================================
+
+enum Rolle {
+  Admin
+  Teamleitung
+  Mitarbeiter
+  Kunde
+  Partner
+}
+
+enum EventKategorie {
+  Party_Musik
+  Spieleabend
+  Live_Musik
+  Feier_Privat
+  Catering
+  WM_Sport
+  Stadtfest_Messe
+  Afterwork
+  Feiertag_Brauchtum
+  Kuenstlercatering
+  Sonstiges
+}
+
+enum EventOrt {
+  Mettgenpin_1877
+  Schaenke_1998
+  Extern
+  Foodtruck
+}
+
+enum IndoorOutdoor {
+  Indoor
+  Outdoor
+  Beides
+}
+
+enum EventStatusTyp {
+  Anfrage
+  Offen
+  In_Bearbeitung
+  Bestaetigt
+  Abgelehnt
+  Abgeschlossen
+  Storniert
+}
+
+enum Prioritaet {
+  Hoch
+  Mittel
+  Niedrig
+}
+
+enum Freigabestatus {
+  Offen
+  Freigegeben
+  Zurueckgestellt
+}
+
+enum Lieferart {
+  Lieferung
+  Abholung
+  Vor_Ort
+}
+
+enum ChecklistStatus {
+  Offen
+  Erledigt
+  N_A
+}
+
+enum DateiTyp {
+  Angebot
+  Rechnung
+  Canva
+  GoogleDrive
+  Bild
+  Video
+  PDF
+  Kundenkommunikation
+  Sonstiges
+}
+
+// ===========================================================================
+// User & Auth
+// ===========================================================================
+
+model User {
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  passwortHash        String
+  name                String
+  rolle               Rolle     @default(Mitarbeiter)
+  telefon             String?
+  firma               String?
+  aktiv               Boolean   @default(true)
+  dsgvoAkzeptiertAm   DateTime?
+
+  // Passwort-Reset
+  passwortResetToken  String?   @unique
+  passwortResetBis    DateTime?
+
+  // 2FA (optional, für Admins)
+  twoFactorSecret     String?
+  twoFactorEnabled    Boolean   @default(false)
+
+  // Refresh-Token-Handling
+  refreshTokenHash    String?
+  refreshTokenExpires DateTime?
+
+  // Meta
+  erstelltAm          DateTime  @default(now())
+  aktualisiertAm      DateTime  @updatedAt
+  letzterLogin        DateTime?
+
+  // Relationen
+  auftraggeberEvents  Event[]   @relation("EventAuftraggeber")
+  bearbeiteteEvents   Event[]   @relation("EventBearbeiter")
+  erstellteEvents     Event[]   @relation("EventErsteller")
+  auditLogs           AuditLog[]
+
+  @@index([email])
+  @@index([rolle])
+}
+
+// ===========================================================================
+// Event
+// ===========================================================================
+
+model Event {
+  id                  String          @id @default(uuid())
+  eventId             String          @unique // z.B. E20260704-001
+
+  // Stammdaten
+  name                String
+  datum               DateTime        @db.Date
+  datumBis            DateTime?       @db.Date
+  wochentag           String          // "Samstag"
+  monat               String          // "Juli"
+  kalenderwoche       Int
+  kategorie           EventKategorie
+  anlass              String?
+  ort                 EventOrt
+  ortDetails          String?
+  flaeche             String?
+  indoorOutdoor       IndoorOutdoor?
+  wetterfallback      String?
+
+  // Zeiten
+  aufbau              DateTime?
+  einlass             DateTime?
+  start               DateTime?
+  ende                DateTime?
+  abbau               DateTime?
+
+  // Status & Workflow
+  status              EventStatusTyp  @default(Anfrage)
+  prioritaet          Prioritaet      @default(Mittel)
+  freigabestatus      Freigabestatus  @default(Offen)
+
+  // Flags
+  cateringJa          Boolean         @default(false)
+  eventJa             Boolean         @default(true)
+  socialMediaNoetig   Boolean         @default(false)
+
+  // Zuordnung
+  auftraggeber        String?
+  auftraggeberId      String?
+  auftraggeberUser    User?           @relation("EventAuftraggeber", fields: [auftraggeberId], references: [id], onDelete: SetNull)
+  ansprechpartner     String?
+  bearbeiterInternId  String?
+  bearbeiterIntern    User?           @relation("EventBearbeiter", fields: [bearbeiterInternId], references: [id], onDelete: SetNull)
+
+  // Finanzen (nur Admin sichtbar, API filtert rollenbasiert)
+  provision           String?
+  preisProPerson      Decimal?        @db.Decimal(10, 2)
+  personenanzahl      Int?
+  gesamtpreis         Decimal?        @db.Decimal(10, 2)
+  anzahlungErhalten   Boolean         @default(false)
+  anzahlungBetrag     Decimal?        @db.Decimal(10, 2)
+
+  // Meta
+  bemerkungen         String?
+  erstelltAm          DateTime        @default(now())
+  aktualisiertAm      DateTime        @updatedAt
+  erstelltVonId       String?
+  erstelltVon         User?           @relation("EventErsteller", fields: [erstelltVonId], references: [id], onDelete: SetNull)
+
+  // 1:1-Relationen
+  catering            EventCatering?
+  ablauf              EventAblauf?
+  marketing           EventMarketing?
+  arbeitsanweisung    EventArbeitsanweisung?
+  statusCheckliste    EventStatusCheckliste?
+
+  // 1:n-Relationen
+  dateien             EventDatei[]
+  auditLogs           AuditLog[]
+
+  @@index([datum])
+  @@index([status])
+  @@index([kategorie])
+  @@index([ort])
+  @@index([bearbeiterInternId])
+  @@index([auftraggeberId])
+}
+
+// ===========================================================================
+// Event-Details (1:1)
+// ===========================================================================
+
+model EventCatering {
+  id                  String    @id @default(uuid())
+  eventId             String    @unique
+  event               Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  personenanzahl      Int?
+  speisen             String?
+  getraenke           String?
+  lieferungAbholung   Lieferart?
+  equipment           String?
+  allergene           String?
+  kuechenhinweise     String?
+  servicehinweise     String?
+  offenePunkte        String?
+
+  aktualisiertAm      DateTime  @updatedAt
+}
+
+model EventAblauf {
+  id                  String    @id @default(uuid())
+  eventId             String    @unique
+  event               Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  zielDesEvents       String?
+  ablaufplan          String?
+  technikBedarf       String?
+  personalbedarf      String?
+  djMusik             String?
+  dekoAusstattung     String?
+  offenePunkte        String?
+
+  aktualisiertAm      DateTime  @updatedAt
+}
+
+model EventMarketing {
+  id                  String          @id @default(uuid())
+  eventId             String          @unique
+  event               Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  kernbotschaft       String?
+  textbausteine       String?
+  plakatbriefing      String?
+  socialMediaPlan     String?
+  videokonzept        String?
+  regiebuch           String?
+  assetLinks          String?
+  referenzbilder      String?
+  freigabestatus      ChecklistStatus @default(Offen)
+  deadline            DateTime?       @db.Date
+
+  aktualisiertAm      DateTime        @updatedAt
+}
+
+model EventArbeitsanweisung {
+  id                  String    @id @default(uuid())
+  eventId             String    @unique
+  event               Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  kueche              String?
+  service             String?
+  einkauf             String?
+  logistikFahrer      String?
+  technik             String?
+  deko                String?
+  nachbereitung       String?
+
+  aktualisiertAm      DateTime  @updatedAt
+}
+
+model EventStatusCheckliste {
+  id                        String          @id @default(uuid())
+  eventId                   String          @unique
+  event                     Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  angebotStatus             ChecklistStatus @default(Offen)
+  kundeBestaetigt           Boolean         @default(false)
+  anzahlungErhalten         Boolean         @default(false)
+  marketingErledigt         ChecklistStatus @default(Offen)
+  arbeitsanweisungErstellt  ChecklistStatus @default(Offen)
+  eventblattVollstaendig    Boolean         @default(false)
+
+  aktualisiertAm            DateTime        @updatedAt
+}
+
+// ===========================================================================
+// Event-Dateien (1:n)
+// ===========================================================================
+
+model EventDatei {
+  id          String    @id @default(uuid())
+  eventId     String
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  typ         DateiTyp
+  name        String
+  url         String?   // externer Link (Canva, Drive etc.)
+  dateiPfad   String?   // lokal hochgeladen
+  erstelltAm  DateTime  @default(now())
+
+  @@index([eventId])
+}
+
+// ===========================================================================
+// Audit-Log
+// ===========================================================================
+
+model AuditLog {
+  id          String    @id @default(uuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  aktion      String
+  eventId     String?
+  event       Event?    @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  details     Json?
+  zeitpunkt   DateTime  @default(now())
+  ipAdresse   String?
+
+  @@index([userId])
+  @@index([eventId])
+  @@index([zeitpunkt])
+}
