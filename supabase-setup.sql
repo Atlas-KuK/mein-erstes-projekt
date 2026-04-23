@@ -5,9 +5,21 @@
 -- 1. https://supabase.com  ->  neues Projekt anlegen (kostenlos)
 -- 2. Links im Menue: "SQL Editor"
 -- 3. Diesen ganzen Inhalt reinkopieren und "Run" druecken
--- 4. Settings -> API -> Project URL + anon key in config.js eintragen
+-- 4. Settings -> API -> Project URL + Publishable key in config.js eintragen
 -- 5. Authentication -> Users -> "Add user" fuer dich, Vater, Bruder
+--
+-- Dieses Skript kann beliebig oft ausgefuehrt werden, ohne Fehler.
 -- ============================================================
+
+-- Alte Policies entfernen (falls vorhanden)
+drop policy if exists "auth_select_unternehmungen" on unternehmungen;
+drop policy if exists "auth_insert_unternehmungen" on unternehmungen;
+drop policy if exists "auth_update_unternehmungen" on unternehmungen;
+drop policy if exists "auth_delete_unternehmungen" on unternehmungen;
+drop policy if exists "auth_select_cashflow" on cashflow;
+drop policy if exists "auth_insert_cashflow" on cashflow;
+drop policy if exists "auth_update_cashflow" on cashflow;
+drop policy if exists "auth_delete_cashflow" on cashflow;
 
 -- Tabelle: Unternehmungen
 create table if not exists unternehmungen (
