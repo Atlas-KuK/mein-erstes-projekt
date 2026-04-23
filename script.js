@@ -1,4 +1,27 @@
-// Smooth scrolling für Anker-Links (nicht für echte Seiten-Links)
+// Seite nur fuer eingeloggte User
+(async () => {
+    const user = await window.auth.requireLogin();
+    if (!user) return;
+
+    const emailEl = document.getElementById('user-email');
+    const nameEl = document.getElementById('user-name');
+    if (emailEl) emailEl.textContent = user.email;
+    if (nameEl) {
+        const vorname = (user.user_metadata && user.user_metadata.vorname) || '';
+        nameEl.textContent = vorname ? ', ' + vorname : '';
+    }
+})();
+
+// Logout
+const logoutLink = document.getElementById('logout-link');
+if (logoutLink) {
+    logoutLink.addEventListener('click', e => {
+        e.preventDefault();
+        window.auth.logout();
+    });
+}
+
+// Smooth scrolling fuer Anker-Links
 document.querySelectorAll('nav a').forEach(link => {
     const href = link.getAttribute('href');
     if (href && href.startsWith('#')) {
@@ -12,7 +35,7 @@ document.querySelectorAll('nav a').forEach(link => {
     }
 });
 
-// Schnellnotiz: im LocalStorage speichern
+// Schnellnotiz im LocalStorage
 const notizFeld = document.getElementById('notiz-feld');
 if (notizFeld) {
     notizFeld.value = localStorage.getItem('dashboard-notiz') || '';
@@ -21,18 +44,18 @@ if (notizFeld) {
     });
 }
 
-// Platzhalter für "Neues Projekt"
+// Platzhalter fuer "Neues Projekt"
 const kachelNeu = document.getElementById('kachel-neu');
 if (kachelNeu) {
     kachelNeu.addEventListener('click', e => {
         e.preventDefault();
-        alert('Hier kommt später der Dialog zum Anlegen eines neuen Projekts.');
+        alert('Hier kommt spaeter der Dialog zum Anlegen eines neuen Projekts.');
     });
 }
 
 const btnNeu = document.getElementById('neues-projekt');
 if (btnNeu) {
     btnNeu.addEventListener('click', () => {
-        alert('Hier kommt später der Dialog zum Anlegen eines neuen Projekts.');
+        alert('Hier kommt spaeter der Dialog zum Anlegen eines neuen Projekts.');
     });
 }

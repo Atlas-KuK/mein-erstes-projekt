@@ -14,23 +14,25 @@
                 <li><a href="index.html" class="active">Übersicht</a></li>
                 <li><a href="#projekte">Projekte</a></li>
                 <li><a href="#notizen">Notizen</a></li>
+                <li><span id="user-email" class="user-email"></span></li>
+                <li><a href="#" id="logout-link">Abmelden</a></li>
             </ul>
         </nav>
     </header>
 
     <main class="dashboard-main">
         <section class="dashboard-hero">
-            <h1>Willkommen zurück</h1>
+            <h1>Willkommen zurück<span id="user-name"></span></h1>
             <p>Hier findest du alle deine Projekte auf einen Blick.</p>
         </section>
 
         <section class="stats">
             <div class="stat">
-                <div class="stat-number" id="projekt-anzahl">3</div>
+                <div class="stat-number" id="projekt-anzahl">4</div>
                 <div class="stat-label">Projekte</div>
             </div>
             <div class="stat">
-                <div class="stat-number">2</div>
+                <div class="stat-number">3</div>
                 <div class="stat-label">Aktiv</div>
             </div>
             <div class="stat">
@@ -46,6 +48,13 @@
             </div>
 
             <div class="projekt-grid">
+                <a href="projekte/cashflow.html" class="projekt-kachel">
+                    <div class="projekt-icon">💰</div>
+                    <h3>Cashflow</h3>
+                    <p>Einnahmen & Ausgaben aller Unternehmungen</p>
+                    <div class="projekt-status status-aktiv">Aktiv</div>
+                </a>
+
                 <a href="projekte/personalplanung.html" class="projekt-kachel">
                     <div class="projekt-icon">👥</div>
                     <h3>Personalplanung</h3>
@@ -86,6 +95,9 @@
         <p>&copy; 2026 Mein Dashboard</p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

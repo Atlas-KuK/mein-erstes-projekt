@@ -49,6 +49,11 @@ nav a.active {
     border-bottom-color: #e94560;
 }
 
+.user-email {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
 /* Dashboard Layout */
 .dashboard-main {
     max-width: 1200px;
