@@ -1,22 +1,38 @@
-// Smooth scrolling for navigation links
+// Smooth scrolling für Anker-Links (nicht für echte Seiten-Links)
 document.querySelectorAll('nav a').forEach(link => {
-    link.addEventListener('click', e => {
-        e.preventDefault();
-        const target = document.querySelector(link.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth' });
-        }
+    const href = link.getAttribute('href');
+    if (href && href.startsWith('#')) {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    }
+});
+
+// Schnellnotiz: im LocalStorage speichern
+const notizFeld = document.getElementById('notiz-feld');
+if (notizFeld) {
+    notizFeld.value = localStorage.getItem('dashboard-notiz') || '';
+    notizFeld.addEventListener('input', () => {
+        localStorage.setItem('dashboard-notiz', notizFeld.value);
     });
-});
+}
 
-// CTA button scrolls to About section
-document.getElementById('cta-button').addEventListener('click', () => {
-    document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
-});
+// Platzhalter für "Neues Projekt"
+const kachelNeu = document.getElementById('kachel-neu');
+if (kachelNeu) {
+    kachelNeu.addEventListener('click', e => {
+        e.preventDefault();
+        alert('Hier kommt später der Dialog zum Anlegen eines neuen Projekts.');
+    });
+}
 
-// Contact form handling
-document.getElementById('contact-form').addEventListener('submit', e => {
-    e.preventDefault();
-    alert('Danke fuer deine Nachricht!');
-    e.target.reset();
-});
+const btnNeu = document.getElementById('neues-projekt');
+if (btnNeu) {
+    btnNeu.addEventListener('click', () => {
+        alert('Hier kommt später der Dialog zum Anlegen eines neuen Projekts.');
+    });
+}

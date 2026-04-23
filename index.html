@@ -3,59 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mein erstes Projekt</title>
+    <title>Dashboard - Meine Projekte</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="dashboard">
     <header>
         <nav>
-            <div class="logo">Mein Projekt</div>
+            <div class="logo">Mein Dashboard</div>
             <ul>
-                <li><a href="#home">Start</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Kontakt</a></li>
+                <li><a href="index.html" class="active">Übersicht</a></li>
+                <li><a href="#projekte">Projekte</a></li>
+                <li><a href="#notizen">Notizen</a></li>
             </ul>
         </nav>
     </header>
 
-    <main>
-        <section id="home" class="hero">
-            <h1>Willkommen auf meiner Webseite</h1>
-            <p>Dies ist mein erstes Webprojekt.</p>
-            <button id="cta-button">Mehr erfahren</button>
+    <main class="dashboard-main">
+        <section class="dashboard-hero">
+            <h1>Willkommen zurück</h1>
+            <p>Hier findest du alle deine Projekte auf einen Blick.</p>
         </section>
 
-        <section id="about" class="about">
-            <h2>About</h2>
-            <div class="cards">
-                <div class="card">
-                    <h3>Design</h3>
-                    <p>Modernes und responsives Design, das auf allen Geraeten gut aussieht.</p>
-                </div>
-                <div class="card">
-                    <h3>Technik</h3>
-                    <p>Gebaut mit HTML, CSS und JavaScript - den Grundlagen des Webs.</p>
-                </div>
-                <div class="card">
-                    <h3>Leidenschaft</h3>
-                    <p>Mit Begeisterung fuer Webentwicklung erstellt.</p>
-                </div>
+        <section class="stats">
+            <div class="stat">
+                <div class="stat-number" id="projekt-anzahl">3</div>
+                <div class="stat-label">Projekte</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Aktiv</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">1</div>
+                <div class="stat-label">Geplant</div>
             </div>
         </section>
 
-        <section id="contact" class="contact">
-            <h2>Kontakt</h2>
-            <form id="contact-form">
-                <input type="text" placeholder="Name" required>
-                <input type="email" placeholder="E-Mail" required>
-                <textarea placeholder="Nachricht" required></textarea>
-                <button type="submit">Absenden</button>
-            </form>
+        <section id="projekte" class="projekte">
+            <div class="section-header">
+                <h2>Meine Projekte</h2>
+                <button class="btn-primary" id="neues-projekt">+ Neues Projekt</button>
+            </div>
+
+            <div class="projekt-grid">
+                <a href="projekte/personalplanung.html" class="projekt-kachel">
+                    <div class="projekt-icon">👥</div>
+                    <h3>Personalplanung</h3>
+                    <p>Schichtplanung und Mitarbeiter-Übersicht</p>
+                    <div class="projekt-status status-aktiv">Aktiv</div>
+                </a>
+
+                <a href="projekte/website.html" class="projekt-kachel">
+                    <div class="projekt-icon">🌐</div>
+                    <h3>Website</h3>
+                    <p>Meine eigene Webseite entwickeln</p>
+                    <div class="projekt-status status-aktiv">Aktiv</div>
+                </a>
+
+                <a href="projekte/ideen.html" class="projekt-kachel">
+                    <div class="projekt-icon">💡</div>
+                    <h3>Ideen-Sammlung</h3>
+                    <p>Gedanken und Pläne für die Zukunft</p>
+                    <div class="projekt-status status-geplant">Geplant</div>
+                </a>
+
+                <a href="#" class="projekt-kachel projekt-kachel-neu" id="kachel-neu">
+                    <div class="projekt-icon">➕</div>
+                    <h3>Neues Projekt</h3>
+                    <p>Hier klicken, um ein neues Projekt anzulegen</p>
+                </a>
+            </div>
+        </section>
+
+        <section id="notizen" class="notizen">
+            <h2>Schnellnotiz</h2>
+            <textarea id="notiz-feld" placeholder="Was willst du dir merken?"></textarea>
+            <p class="notiz-hinweis">Wird lokal in deinem Browser gespeichert.</p>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2026 Mein erstes Projekt</p>
+        <p>&copy; 2026 Mein Dashboard</p>
     </footer>
 
     <script src="script.js"></script>
