@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideen-Sammlung - Mein Dashboard</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Mein Dashboard</div>
+            <ul>
+                <li><a href="../index.html">Übersicht</a></li>
+                <li><a href="../index.html#projekte">Projekte</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="projekt-page">
+        <a href="../index.html" class="zurueck">← Zurück zum Dashboard</a>
+        <h1>💡 Ideen-Sammlung</h1>
+        <p style="color: #666; margin-bottom: 2rem;">Gedanken und Pläne für die Zukunft</p>
+
+        <div class="card">
+            <h3>Offene Ideen</h3>
+            <ul style="margin-left: 1.5rem; margin-top: 0.75rem;">
+                <li>Eine Seite nur für Kunden-Termine</li>
+                <li>Kalender-Integration</li>
+                <li>Mobile Ansicht verbessern</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mein Dashboard</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../config.js"></script>
+    <script src="../auth.js"></script>
+    <script>window.auth.requireLogin();</script>
+</body>
+</html>
