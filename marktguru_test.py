@@ -1,0 +1,429 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+marktguru_test.py
+
+Eigenständiges Test-Skript: prueft, ob strukturierte Einzelhandels-Angebote von
+marktguru fuer PLZ 58675 (Hemer) abgerufen werden koennen.
+
+Kontext: Gastronomie-Einkauf. Fokus: Softdrinks, Alkohol, Gemuese.
+Wichtigster Haendler: Marktkauf Hemer.
+
+API:
+  GET https://api.marktguru.de/api/v1/offers/search
+  Query: as=web, limit=25, offset=0, q=<suchbegriff>, zipCode=58675
+  Pflicht-Header: x-apikey, x-clientkey
+
+Nur stdlib + requests.
+"""
+
+import csv
+import json
+import re
+import sys
+import time
+from collections import Counter, defaultdict
+
+import requests
+
+# ---------------------------------------------------------------------------
+# Manuelle Keys (Fallback).
+#
+# Wenn die automatische Extraktion aus der marktguru-Webseite scheitert, hier
+# zwei Konstanten setzen. Sind beide gesetzt (nicht leer), wird die Extraktion
+# komplett uebersprungen.
+#
+# So bekommst du die Keys manuell:
+#   1. https://www.marktguru.de im Browser oeffnen.
+#   2. F12 -> Tab "Netzwerk" (Network) -> Filter auf "api.marktguru.de".
+#   3. Auf der Seite eine Suche starten (z.B. "cola").
+#   4. Den Request an api.marktguru.de anklicken -> Reiter "Header".
+#   5. Unter "Request Headers" die Werte von  x-apikey  und  x-clientkey
+#      kopieren und hier eintragen.
+# ---------------------------------------------------------------------------
+API_KEY = ""        # <- hier x-apikey eintragen, um Auto-Extraktion zu ueberspringen
+CLIENT_KEY = ""     # <- hier x-clientkey eintragen
+
+ZIP_CODE = "58675"          # Hemer
+BASE_URL = "https://api.marktguru.de/api/v1/offers/search"
+HOME_URL = "https://www.marktguru.de"
+REQUEST_TIMEOUT = 20
+SLEEP_BETWEEN = 0.3         # Sekunden Pause zwischen den Suchanfragen
+
+# Echter Browser-User-Agent, sonst blocken die marktguru-Server gerne.
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+
+SEARCH_TERMS = {
+    "Softdrinks": ["coca cola", "fanta", "sprite", "mezzo mix"],
+    "Alkohol":    ["krombacher", "veltins", "warsteiner", "jaegermeister",
+                   "aperol", "wodka"],
+    "Gemuese":    ["tomaten", "zwiebeln", "paprika", "gurke", "salat"],
+}
+
+CSV_FILE = "marktguru_angebote.csv"
+
+# Marker, ob das rohe JSON-Schema schon einmal ausgegeben wurde.
+_schema_dumped = False
+
+
+# ---------------------------------------------------------------------------
+# Key-Beschaffung
+# ---------------------------------------------------------------------------
+def fetch_keys(session):
+    """
+    Liefert (api_key, client_key).
+
+    Reihenfolge:
+      1. Wenn beide Konstanten gesetzt sind -> direkt zurueck (keine Extraktion).
+      2. Sonst Startseite laden, Script-URLs extrahieren, in HTML + JS-Bundles
+         per Regex nach apiKey / clientKey suchen.
+    """
+    if API_KEY and CLIENT_KEY:
+        print("[keys] Verwende manuell gesetzte Konstanten "
+              "(Extraktion uebersprungen).")
+        return API_KEY, CLIENT_KEY
+
+    print(f"[keys] Lade Startseite {HOME_URL} ...")
+    try:
+        r = session.get(HOME_URL, timeout=REQUEST_TIMEOUT)
+        r.raise_for_status()
+        html = r.text
+    except Exception as e:
+        print(f"[keys] FEHLER beim Laden der Startseite: "
+              f"{type(e).__name__}: {e}")
+        return None, None
+
+    # Zuerst direkt im HTML nach Keys suchen.
+    api_key, client_key = _scan_for_keys(html)
+    if api_key and client_key:
+        print("[keys] Keys direkt im HTML der Startseite gefunden.")
+        return api_key, client_key
+
+    # Script-URLs aus dem HTML ziehen.
+    script_urls = _extract_script_urls(html)
+    print(f"[keys] {len(script_urls)} Script-URL(s) gefunden, durchsuche JS ...")
+
+    for url in script_urls:
+        try:
+            jr = session.get(url, timeout=REQUEST_TIMEOUT)
+            if jr.status_code != 200:
+                continue
+            js = jr.text
+        except Exception as e:
+            print(f"[keys]   uebersprungen {url}: {type(e).__name__}: {e}")
+            continue
+
+        a, c = _scan_for_keys(js)
+        api_key = api_key or a
+        client_key = client_key or c
+        if api_key and client_key:
+            print(f"[keys] Keys gefunden in JS-Bundle: {url}")
+            return api_key, client_key
+
+    if api_key or client_key:
+        print(f"[keys] Nur teilweise gefunden "
+              f"(apiKey={'ja' if api_key else 'nein'}, "
+              f"clientKey={'ja' if client_key else 'nein'}).")
+    else:
+        print("[keys] Keine Keys aus HTML/JS extrahierbar.")
+    return api_key, client_key
+
+
+def _extract_script_urls(html):
+    """Alle <script src=...> URLs absolut machen."""
+    urls = []
+    for m in re.findall(r'<script[^>]+src=["\']([^"\']+)["\']', html, re.I):
+        if m.startswith("//"):
+            m = "https:" + m
+        elif m.startswith("/"):
+            m = HOME_URL.rstrip("/") + m
+        elif not m.startswith("http"):
+            m = HOME_URL.rstrip("/") + "/" + m
+        urls.append(m)
+    # Duplikate raus, Reihenfolge erhalten.
+    seen, out = set(), []
+    for u in urls:
+        if u not in seen:
+            seen.add(u)
+            out.append(u)
+    return out
+
+
+def _scan_for_keys(text):
+    """
+    Sucht in beliebigem Text nach apiKey / clientKey.
+    Erwartet base64-artige Strings (ca. 20+ Zeichen).
+    """
+    val = r'["\']([A-Za-z0-9_\-]{20,})["\']'
+    api_patterns = [
+        r'apiKey\s*[:=]\s*' + val,
+        r'x-apikey["\']?\s*[:=]\s*' + val,
+        r'API_KEY\s*[:=]\s*' + val,
+    ]
+    client_patterns = [
+        r'clientKey\s*[:=]\s*' + val,
+        r'x-clientkey["\']?\s*[:=]\s*' + val,
+        r'CLIENT_KEY\s*[:=]\s*' + val,
+    ]
+    api_key = _first_match(api_patterns, text)
+    client_key = _first_match(client_patterns, text)
+    return api_key, client_key
+
+
+def _first_match(patterns, text):
+    for p in patterns:
+        m = re.search(p, text)
+        if m:
+            return m.group(1)
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Suche
+# ---------------------------------------------------------------------------
+def search_term(session, headers, term):
+    """
+    Fuehrt eine Suche aus. Gibt die Liste der Result-Objekte zurueck (ggf. leer).
+    Wirft NICHT - Fehler werden gefangen und als leere Liste behandelt.
+    """
+    params = {
+        "as": "web",
+        "limit": 25,
+        "offset": 0,
+        "q": term,
+        "zipCode": ZIP_CODE,
+    }
+    try:
+        r = session.get(BASE_URL, headers=headers, params=params,
+                        timeout=REQUEST_TIMEOUT)
+    except Exception as e:
+        print(f"  [{term}] Request-FEHLER: {type(e).__name__}: {e}")
+        return []
+
+    if r.status_code != 200:
+        snippet = (r.text or "")[:200].replace("\n", " ")
+        print(f"  [{term}] HTTP {r.status_code}: {snippet}")
+        return []
+
+    try:
+        data = r.json()
+    except Exception as e:
+        print(f"  [{term}] JSON-Parse-FEHLER: {type(e).__name__}: {e}")
+        return []
+
+    # marktguru liefert ueblicherweise {"results":[...]} - defensiv abfangen.
+    if isinstance(data, dict):
+        results = (data.get("results") or data.get("offers")
+                   or data.get("data") or [])
+    elif isinstance(data, list):
+        results = data
+    else:
+        results = []
+    return results
+
+
+def maybe_dump_schema(result_obj):
+    """Beim allerersten Treffer das rohe JSON des ersten Result-Objekts zeigen."""
+    global _schema_dumped
+    if _schema_dumped:
+        return
+    _schema_dumped = True
+    print("\n" + "=" * 70)
+    print("ROHES JSON DES ERSTEN TREFFERS (zur Feldnamen-Inspektion)")
+    print("=" * 70)
+    print(json.dumps(result_obj, indent=2, ensure_ascii=False))
+    print("=" * 70 + "\n")
+
+
+# ---------------------------------------------------------------------------
+# Feld-Extraktion (defensiv)
+# ---------------------------------------------------------------------------
+def _get_first(d, *keys, default=None):
+    """Erstes vorhandenes, nicht-leeres Feld aus mehreren moeglichen Namen."""
+    for k in keys:
+        if isinstance(d, dict) and d.get(k) not in (None, "", [], {}):
+            return d.get(k)
+    return default
+
+
+def parse_offer(offer):
+    """Ein Result-Objekt -> dict mit den Feldern, die wir brauchen."""
+    if not isinstance(offer, dict):
+        return None
+
+    # marktguru verschachtelt das Produkt manchmal unter "product".
+    product_node = offer.get("product") if isinstance(offer.get("product"), dict) else {}
+
+    produkt = (_get_first(offer, "title", "name", "productName", "description")
+               or _get_first(product_node, "name", "title")
+               or "")
+
+    preis = _get_first(offer, "price", "offerPrice", "currentPrice",
+                       "priceValue", "salePrice")
+
+    grundpreis = _get_first(offer, "basePrice", "unitPrice", "pricePerUnit")
+
+    einheit = (_get_first(offer, "unit", "quantity", "amount", "packaging",
+                          "unitText")
+               or _get_first(product_node, "unit", "quantity"))
+
+    gueltig_bis = _get_first(offer, "validTo", "validUntil", "endDate",
+                             "validityEndDate", "dateEnd")
+    # Manche Schemas: validityDates: [{"from":..,"to":..}]
+    if not gueltig_bis:
+        vd = offer.get("validityDates")
+        if isinstance(vd, list) and vd and isinstance(vd[0], dict):
+            gueltig_bis = _get_first(vd[0], "to", "validTo", "end")
+
+    # Haendler aus advertisers[0].name
+    haendler = ""
+    advs = offer.get("advertisers")
+    if isinstance(advs, list) and advs:
+        first = advs[0]
+        if isinstance(first, dict):
+            haendler = _get_first(first, "name", "title", default="") or ""
+        elif isinstance(first, str):
+            haendler = first
+    if not haendler:
+        haendler = _get_first(offer, "advertiserName", "retailer", "shop",
+                              default="") or ""
+
+    return {
+        "produkt": str(produkt).strip(),
+        "haendler": str(haendler).strip(),
+        "preis": preis,
+        "grundpreis": grundpreis,
+        "einheit": str(einheit).strip() if einheit else "",
+        "gueltig_bis": str(gueltig_bis).strip() if gueltig_bis else "",
+    }
+
+
+# ---------------------------------------------------------------------------
+# Hauptlauf
+# ---------------------------------------------------------------------------
+def main():
+    session = requests.Session()
+    session.headers.update({"User-Agent": UA, "Accept": "application/json"})
+
+    api_key, client_key = fetch_keys(session)
+    if not (api_key and client_key):
+        print("\n[ABBRUCH] Konnte keine API-Keys beschaffen. "
+              "Bitte API_KEY / CLIENT_KEY oben im Skript manuell setzen "
+              "(siehe Kommentar).")
+        # Trotzdem versuchen wir NICHT blind weiter - ohne Keys ist alles 401.
+        return 1
+
+    print(f"[keys] apiKey={_mask(api_key)}  clientKey={_mask(client_key)}")
+
+    headers = {
+        "x-apikey": api_key,
+        "x-clientkey": client_key,
+        "User-Agent": UA,
+        "Accept": "application/json",
+    }
+
+    rows = []                       # alle geparsten, deduplizierten Treffer
+    seen = set()                    # (produkt, haendler, preis)
+    per_category = defaultdict(list)
+    haendler_counter = Counter()
+
+    for kategorie, terms in SEARCH_TERMS.items():
+        for term in terms:
+            print(f"[suche] {kategorie} / '{term}' ...")
+            results = search_term(session, headers, term)
+            print(f"  -> {len(results)} Roh-Treffer")
+
+            for offer in results:
+                if isinstance(offer, dict):
+                    maybe_dump_schema(offer)
+                parsed = parse_offer(offer)
+                if not parsed or not parsed["produkt"]:
+                    continue
+
+                key = (parsed["produkt"].lower(),
+                       parsed["haendler"].lower(),
+                       str(parsed["preis"]))
+                if key in seen:
+                    continue
+                seen.add(key)
+
+                parsed["kategorie"] = kategorie
+                parsed["suchbegriff"] = term
+                rows.append(parsed)
+                per_category[kategorie].append(parsed)
+                if parsed["haendler"]:
+                    haendler_counter[parsed["haendler"]] += 1
+
+            time.sleep(SLEEP_BETWEEN)
+
+    print_grouped(per_category)
+    write_csv(rows)
+    print_summary(haendler_counter, len(rows))
+    return 0
+
+
+def _mask(s):
+    if not s:
+        return "<leer>"
+    return s[:4] + "..." + s[-4:] if len(s) > 10 else s[:2] + "..."
+
+
+def print_grouped(per_category):
+    print("\n" + "#" * 70)
+    print("# ANGEBOTE GRUPPIERT NACH KATEGORIE")
+    print("#" * 70)
+    for kategorie, items in per_category.items():
+        print(f"\n=== {kategorie} ({len(items)} Treffer) ===")
+        for it in items:
+            preis = it["preis"]
+            preis_s = f"{preis}" if preis is not None else "?"
+            print(f"  - {it['produkt'][:50]:50s} | {it['haendler'][:20]:20s} "
+                  f"| {preis_s:>8} | {it['einheit'][:15]:15s} "
+                  f"| bis {it['gueltig_bis']}")
+        if not items:
+            print("  (keine Treffer)")
+
+
+def write_csv(rows):
+    try:
+        with open(CSV_FILE, "w", newline="", encoding="utf-8-sig") as f:
+            w = csv.writer(f, delimiter=";")
+            w.writerow(["Kategorie", "Suchbegriff", "Produkt", "Haendler",
+                        "Preis", "Einheit", "Gueltig_bis"])
+            for r in rows:
+                w.writerow([r["kategorie"], r["suchbegriff"], r["produkt"],
+                            r["haendler"], r["preis"], r["einheit"],
+                            r["gueltig_bis"]])
+        print(f"\n[csv] {len(rows)} Zeilen geschrieben -> {CSV_FILE} "
+              f"(UTF-8 mit BOM, Semikolon-Trenner)")
+    except Exception as e:
+        print(f"[csv] FEHLER beim Schreiben: {type(e).__name__}: {e}")
+
+
+def print_summary(haendler_counter, total):
+    print("\n" + "#" * 70)
+    print("# ZUSAMMENFASSUNG")
+    print("#" * 70)
+    print(f"Gesamt (dedupliziert): {total} Treffer")
+    print(f"Verschiedene Haendler: {len(haendler_counter)}")
+
+    if haendler_counter:
+        print("\nHaendler nach Trefferzahl:")
+        for name, cnt in haendler_counter.most_common():
+            print(f"  {cnt:4d}  {name}")
+
+    # Marktkauf explizit hervorheben (auch Schreibvarianten abfangen).
+    marktkauf = sum(c for n, c in haendler_counter.items()
+                    if "marktkauf" in n.lower())
+    print("\n" + "-" * 40)
+    if marktkauf > 0:
+        print(f">>> MARKTKAUF: {marktkauf} Treffer gefunden "
+              f"(wichtigster Laden) <<<")
+    else:
+        print(">>> MARKTKAUF: KEINE Treffer fuer Marktkauf gefunden <<<")
+    print("-" * 40)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
