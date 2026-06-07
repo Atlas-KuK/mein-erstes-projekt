@@ -252,29 +252,47 @@ def parse_offer(offer):
     if not isinstance(offer, dict):
         return None
 
-    # marktguru verschachtelt das Produkt manchmal unter "product".
+    # marktguru verschachtelt Produkt/Marke/Einheit in Unter-Objekte.
     product_node = offer.get("product") if isinstance(offer.get("product"), dict) else {}
+    brand_node = offer.get("brand") if isinstance(offer.get("brand"), dict) else {}
+    unit_node = offer.get("unit") if isinstance(offer.get("unit"), dict) else {}
 
-    produkt = (_get_first(offer, "title", "name", "productName", "description")
-               or _get_first(product_node, "name", "title")
-               or "")
+    # Produktname: Marke + Produktname kombinieren (z.B. "Coca-Cola Original
+    # Taste"). Fallback auf den Werbetext (description), falls nichts da ist.
+    brand_name = _get_first(brand_node, "name", "title", default="") or ""
+    prod_name = _get_first(product_node, "name", "title", default="") or ""
+    produkt = " ".join(p for p in (brand_name, prod_name) if p).strip()
+    if not produkt:
+        produkt = (_get_first(offer, "title", "name", "productName",
+                              "description") or "")
 
     preis = _get_first(offer, "price", "offerPrice", "currentPrice",
                        "priceValue", "salePrice")
 
-    grundpreis = _get_first(offer, "basePrice", "unitPrice", "pricePerUnit")
+    # Grundpreis (Preis pro Einheit) - fuer Gastro-Vergleich nuetzlich.
+    grundpreis = _get_first(offer, "referencePrice", "basePrice", "unitPrice",
+                            "pricePerUnit")
 
-    einheit = (_get_first(offer, "unit", "quantity", "amount", "packaging",
-                          "unitText")
-               or _get_first(product_node, "unit", "quantity"))
+    # Einheit: unit ist ein Objekt {shortName, name}. Mit Menge/Volumen
+    # kombinieren -> z.B. "2 l" statt rohem dict.
+    unit_short = _get_first(unit_node, "shortName", "name", default="") or ""
+    menge = offer.get("volume") or offer.get("quantity")
+    if unit_short and menge not in (None, "", 0):
+        einheit = f"{_fmt_num(menge)} {unit_short}"
+    elif unit_short:
+        einheit = unit_short
+    else:
+        einheit = (_get_first(offer, "quantity", "amount", "packaging",
+                              "unitText", default="") or "")
 
     gueltig_bis = _get_first(offer, "validTo", "validUntil", "endDate",
                              "validityEndDate", "dateEnd")
-    # Manche Schemas: validityDates: [{"from":..,"to":..}]
+    # Marktguru-Schema: validityDates: [{"from":..,"to":..}]
     if not gueltig_bis:
         vd = offer.get("validityDates")
         if isinstance(vd, list) and vd and isinstance(vd[0], dict):
             gueltig_bis = _get_first(vd[0], "to", "validTo", "end")
+    gueltig_bis = _fmt_date(gueltig_bis)
 
     # Haendler aus advertisers[0].name
     haendler = ""
@@ -295,8 +313,28 @@ def parse_offer(offer):
         "preis": preis,
         "grundpreis": grundpreis,
         "einheit": str(einheit).strip() if einheit else "",
-        "gueltig_bis": str(gueltig_bis).strip() if gueltig_bis else "",
+        "gueltig_bis": gueltig_bis,
     }
+
+
+def _fmt_num(n):
+    """2.0 -> '2', 0.5 -> '0.5' (haengt keine unnoetige .0 an)."""
+    try:
+        f = float(n)
+        return str(int(f)) if f == int(f) else str(f)
+    except (TypeError, ValueError):
+        return str(n)
+
+
+def _fmt_date(value):
+    """ISO-Datum '2026-06-13T21:59:00Z' -> '13.06.2026'. Sonst Rohwert."""
+    if not value:
+        return ""
+    s = str(value)
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})", s)
+    if m:
+        return f"{m.group(3)}.{m.group(2)}.{m.group(1)}"
+    return s.strip()
 
 
 # ---------------------------------------------------------------------------
