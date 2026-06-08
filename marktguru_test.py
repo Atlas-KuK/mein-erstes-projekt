@@ -44,6 +44,19 @@ import requests
 API_KEY = ""        # <- hier x-apikey eintragen, um Auto-Extraktion zu ueberspringen
 CLIENT_KEY = ""     # <- hier x-clientkey eintragen
 
+# Alternativ koennen die Keys in einer eigenen Datei stehen, damit man das
+# Programm aktualisieren kann, ohne die Keys neu eintragen zu muessen.
+# Format der Datei (zwei Zeilen genuegen):
+#     apikey=DEIN_X_APIKEY
+#     clientkey=DEIN_X_CLIENTKEY
+KEYS_FILE = "marktguru_keys.txt"
+
+# Produktliste: steht in einer eigenen Textdatei, damit du sie bequem pflegen
+# kannst, ohne im Programm-Code etwas zu aendern. Eine Zeile = ein Suchbegriff.
+# Zeilen, die mit '#' beginnen, sind Kategorie-Ueberschriften.
+# Fehlt die Datei, werden die DEFAULT_SEARCH_TERMS unten benutzt.
+PRODUCTS_FILE = "produkte.txt"
+
 ZIP_CODE = "58675"          # Hemer
 BASE_URL = "https://api.marktguru.de/api/v1/offers/search"
 HOME_URL = "https://www.marktguru.de"
@@ -54,7 +67,8 @@ SLEEP_BETWEEN = 0.3         # Sekunden Pause zwischen den Suchanfragen
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 
-SEARCH_TERMS = {
+# Fallback, falls produkte.txt fehlt.
+DEFAULT_SEARCH_TERMS = {
     "Softdrinks": ["coca cola", "fanta", "sprite", "mezzo mix"],
     "Alkohol":    ["krombacher", "veltins", "warsteiner", "jaegermeister",
                    "aperol", "wodka"],
@@ -65,6 +79,81 @@ CSV_FILE = "marktguru_angebote.csv"
 
 # Marker, ob das rohe JSON-Schema schon einmal ausgegeben wurde.
 _schema_dumped = False
+
+
+# ---------------------------------------------------------------------------
+# Dateien einlesen (Produkte + Keys)
+# ---------------------------------------------------------------------------
+def load_products(path):
+    """
+    Liest die Produktliste aus einer Textdatei.
+    Aufbau:
+        # Kategorie
+        suchbegriff
+        noch ein suchbegriff
+    Gibt ein dict {Kategorie: [begriffe]} zurueck. Fehlt die Datei oder ist sie
+    leer, wird None zurueckgegeben (dann nutzt der Aufrufer die Defaults).
+    """
+    import os
+    if not os.path.exists(path):
+        return None
+    terms = {}
+    current = "Allgemein"
+    try:
+        with open(path, "r", encoding="utf-8-sig") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                if line.startswith("#"):
+                    name = line.lstrip("#").strip()
+                    if name:
+                        current = name
+                    continue
+                terms.setdefault(current, []).append(line)
+    except Exception as e:
+        print(f"[produkte] FEHLER beim Lesen von '{path}': "
+              f"{type(e).__name__}: {e}")
+        return None
+    # Leere Kategorien entfernen.
+    terms = {k: v for k, v in terms.items() if v}
+    return terms or None
+
+
+def load_keys_from_file(path):
+    """
+    Liest API_KEY / CLIENT_KEY aus einer Datei.
+    Akzeptiert 'apikey=...' / 'clientkey=...' ODER einfach zwei Zeilen
+    (erste = apikey, zweite = clientkey). Gibt (api, client) oder (None, None).
+    """
+    import os
+    if not os.path.exists(path):
+        return None, None
+    api_key = client_key = None
+    plain = []
+    try:
+        with open(path, "r", encoding="utf-8-sig") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                low = line.lower()
+                if low.startswith("apikey") or low.startswith("x-apikey"):
+                    api_key = line.split("=", 1)[-1].strip().strip('"')
+                elif low.startswith("clientkey") or low.startswith("x-clientkey"):
+                    client_key = line.split("=", 1)[-1].strip().strip('"')
+                else:
+                    plain.append(line)
+    except Exception as e:
+        print(f"[keys] FEHLER beim Lesen von '{path}': "
+              f"{type(e).__name__}: {e}")
+        return None, None
+    # Fallback: zwei nackte Zeilen ohne 'apikey='/'clientkey='.
+    if not api_key and len(plain) >= 1:
+        api_key = plain[0]
+    if not client_key and len(plain) >= 2:
+        client_key = plain[1]
+    return api_key, client_key
 
 
 # ---------------------------------------------------------------------------
@@ -83,6 +172,12 @@ def fetch_keys(session):
         print("[keys] Verwende manuell gesetzte Konstanten "
               "(Extraktion uebersprungen).")
         return API_KEY, CLIENT_KEY
+
+    file_api, file_client = load_keys_from_file(KEYS_FILE)
+    if file_api and file_client:
+        print(f"[keys] Verwende Keys aus Datei '{KEYS_FILE}' "
+              "(Extraktion uebersprungen).")
+        return file_api, file_client
 
     print(f"[keys] Lade Startseite {HOME_URL} ...")
     try:
@@ -354,6 +449,17 @@ def main():
 
     print(f"[keys] apiKey={_mask(api_key)}  clientKey={_mask(client_key)}")
 
+    # Produktliste laden: bevorzugt aus produkte.txt, sonst Defaults.
+    search_terms = load_products(PRODUCTS_FILE)
+    if search_terms:
+        anzahl = sum(len(v) for v in search_terms.values())
+        print(f"[produkte] {anzahl} Suchbegriffe aus '{PRODUCTS_FILE}' geladen "
+              f"({len(search_terms)} Kategorien).")
+    else:
+        search_terms = DEFAULT_SEARCH_TERMS
+        print(f"[produkte] '{PRODUCTS_FILE}' nicht gefunden - "
+              "verwende eingebaute Standardliste.")
+
     headers = {
         "x-apikey": api_key,
         "x-clientkey": client_key,
@@ -366,7 +472,7 @@ def main():
     per_category = defaultdict(list)
     haendler_counter = Counter()
 
-    for kategorie, terms in SEARCH_TERMS.items():
+    for kategorie, terms in search_terms.items():
         for term in terms:
             print(f"[suche] {kategorie} / '{term}' ...")
             results = search_term(session, headers, term)
