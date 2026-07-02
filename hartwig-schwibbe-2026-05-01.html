@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hartwig &amp; Schwibbe – Firmenjubiläum 01.05.2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a1a;
+      padding: 20px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #1a2a4a 0%, #2d4a7a 50%, #1a3060 100%);
+      color: #fff;
+      border-radius: 14px;
+      padding: 26px 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      opacity: 0.65;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .hero h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+    .hero-sub {
+      font-size: 1rem;
+      opacity: 0.85;
+      margin-bottom: 14px;
+    }
+    .hero-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .hero-badge {
+      border-radius: 20px;
+      padding: 4px 13px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .hero-badge.gold {
+      background: rgba(196,146,42,0.35);
+      border: 1px solid rgba(196,146,42,0.6);
+    }
+    .hero-badge.light {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* ── Nav ──────────────────────────────────────────────── */
+    .page-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .page-nav a {
+      background: #fff;
+      border: 1px solid #dde;
+      border-radius: 8px;
+      padding: 7px 15px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #1a2a4a;
+      text-decoration: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      transition: background 0.15s;
+    }
+    .page-nav a:hover { background: #eef2ff; }
+
+    /* ── Cards ────────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 26px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 15px 20px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-header h2 { font-size: 1.15rem; }
+    .card-header .meta { font-size: 0.82rem; opacity: 0.85; margin-top: 2px; }
+    .card-body { padding: 16px 20px; }
+
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #888;
+      margin: 14px 0 8px;
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    @media (max-width: 580px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-item {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.87rem;
+    }
+    .info-item strong { display: block; color: #444; margin-bottom: 3px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    /* ── Day Sections in Personalplanung ─────────────────── */
+    .day-section { margin-bottom: 20px; }
+
+    .day-header {
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .day-header .day-label { font-weight: 700; font-size: 0.95rem; }
+    .day-header .day-date  { font-size: 0.82rem; opacity: 0.85; }
+
+    /* ── Position Cards ───────────────────────────────────── */
+    .pos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .pos-card {
+      border: 2px solid;
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .pos-card-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pos-card-desc {
+      font-size: 0.78rem;
+      color: #666;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .pos-card .le-slots { margin-bottom: 4px; }
+
+    .slot-input {
+      display: block;
+      width: 100%;
+      padding: 5px 8px;
+      margin-bottom: 5px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      background: #fff;
+    }
+    .slot-input:focus { outline: none; border-color: #888; }
+
+    .add-slot-btn {
+      background: transparent;
+      border: 1px dashed #aaa;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      color: #888;
+      margin-top: 2px;
+      width: 100%;
+    }
+    .add-slot-btn:hover { border-color: #555; color: #333; }
+
+    /* ── Export / Action Buttons ──────────────────────────── */
+    .action-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+    .btn-primary {
+      background: #1a2a4a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .btn-primary:hover { background: #2d4a7a; }
+    .btn-secondary {
+      background: #eee;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #555;
+    }
+    .btn-secondary:hover { background: #e0e0e0; }
+
+    #hs-output {
+      display: none;
+      background: #f0f2f5;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      border-left: 4px solid #1a2a4a;
+      margin-top: 12px;
+    }
+
+    /* ── Timeline ─────────────────────────────────────────── */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 4px;
+      bottom: 4px;
+      width: 2px;
+      background: #dde;
+    }
+    .tl-item {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 6px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #1a2a4a;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px #1a2a4a;
+    }
+    .tl-item.green::before  { background: #2e7d32; box-shadow: 0 0 0 2px #2e7d32; }
+    .tl-item.gold::before   { background: #c4922a; box-shadow: 0 0 0 2px #c4922a; }
+    .tl-item.brown::before  { background: #6d4c41; box-shadow: 0 0 0 2px #6d4c41; }
+    .tl-date {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 2px;
+    }
+    .tl-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
+    .tl-desc  { font-size: 0.83rem; color: #555; line-height: 1.4; }
+
+    /* ── WhatsApp blocks ──────────────────────────────────── */
+    .wa-block {
+      background: #e8f5e9;
+      border: 1px solid #a5d6a7;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .wa-block:hover { background: #dcedc8; }
+    .wa-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #1b5e20;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .copy-hint { font-size: 0.7rem; color: #558b2f; font-weight: 400; text-transform: none; letter-spacing: 0; }
+    .wa-text {
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      color: #1a1a1a;
+      line-height: 1.55;
+    }
+    .copy-btn {
+      background: #2e7d32;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 14px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      margin-bottom: 14px;
+    }
+
+    /* ── Offer table ──────────────────────────────────────── */
+    table.offer-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+    table.offer-table th {
+      background: #f0f2f5;
+      padding: 6px 10px;
+      text-align: left;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #666;
+      border-bottom: 2px solid #dde;
+    }
+    table.offer-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #eee;
+    }
+    table.offer-table tr:last-child td { border-bottom: none; }
+    table.offer-table td.price { text-align: right; font-weight: 700; }
+    table.offer-table tr.total { background: #f8f9fa; font-weight: 700; }
+
+    footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.78rem;
+      margin-top: 28px;
+      padding-top: 14px;
+      border-top: 1px solid #dde;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
+  <div class="hero-eyebrow">Lucky Event · Auftrag AB0013</div>
+  <h1>Hartwig &amp; Schwibbe</h1>
+  <div class="hero-sub">Firmenjubiläum · Solingen · 150 Gäste</div>
+  <div class="hero-badges">
+    <span class="hero-badge gold">🎉 Fr. 01.05.2026 · 12:00–20:00 Uhr</span>
+    <span class="hero-badge light">🔧 Aufbau: Di. 28.04. + Mi. 29.04.</span>
+    <span class="hero-badge light">📦 Abbau: So. 02.05. + Mo. 03.05.</span>
+    <span class="hero-badge light">🚚 LKW: Uwe Delke</span>
+  </div>
+</div>
+
+<!-- ═══════ NAV ═══════ -->
+<div class="page-nav">
+  <a href="#personalplanung">📋 Personalplanung</a>
+  <a href="#projekt">📁 Projektübersicht</a>
+  <a href="#timeline">🗓 Zeitplan</a>
+  <a href="#whatsapp">💬 WhatsApp-Vorlagen</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PERSONALPLANUNG
+═══════════════════════════════════════════════════════ -->
+<div id="personalplanung" class="card">
+  <div class="card-header" style="background:#1a2a4a; flex-direction:column; align-items:flex-start;">
+    <h2>📋 Personalplanung</h2>
+    <div class="meta">Alle Phasen – Aufbau · Veranstaltung · Abbau | Felder ausfüllen → Plan kopieren</div>
+  </div>
+  <div class="card-body">
+
+    <!-- ── AUFBAU ──────────────────────────────────────── -->
+    <div class="day-section">
+      <div class="day-header" style="background:#5d4037;">
+        <span class="day-label">🔧 Aufbau</span>
+        <span class="day-date">Di. 28. April &amp; Mi. 29. April 2026</span>
+      </div>
+      <div class="pos-grid">
+
+        <div class="pos-card" id="card-aufbauteam" style="border-color:#4e342e; background:#fbe9e7;">
+          <div class="pos-card-title" style="color:#3e2723;">👷 Aufbauteam</div>
+          <div class="pos-card-desc">Catering-Stationen, Infrastruktur,<br>Kühlanhänger · 5 Personen</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Person 1" class="slot-input">
+            <input type="text" placeholder="Person 2" class="slot-input">
+            <input type="text" placeholder="Person 3" class="slot-input">
+            <input type="text" placeholder="Person 4" class="slot-input">
+            <input type="text" placeholder="Person 5" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+        <div class="pos-card" style="border-color:#546e7a; background:#eceff1;">
+          <div class="pos-card-title" style="color:#37474f;">🏗 Schlepper</div>
+          <div class="pos-card-desc">Entladen, Schleppen, Aufstellen<br>Equipment und Stationen</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Person 1" class="slot-input">
+            <input type="text" placeholder="Person 2" class="slot-input">
+            <input type="text" placeholder="Person 3" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+        <div class="pos-card" style="border-color:#37474f; background:#f5f5f5;">
+          <div class="pos-card-title" style="color:#263238;">🚚 Uwe Delke – LKW</div>
+          <div class="pos-card-desc">Anlieferung Equipment &amp; Catering<br>Di. + Mi. Aufbau / Fr. Nachlieferung</div>
+          <div class="le-slots">
+            <input type="text" value="Uwe Delke" class="slot-input">
+          </div>
+          <div style="font-size:0.75rem;color:#888;margin-top:4px;">Tel. bestätigt?
+            <input type="text" placeholder="Bestätigung / Uhrzeit" class="slot-input" style="margin-top:4px;">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── VERANSTALTUNGSTAG ────────────────────────────── -->
+    <div class="day-section">
+      <div class="day-header" style="background:#1a2a4a;">
+        <span class="day-label">🎉 Veranstaltungstag</span>
+        <span class="day-date">Fr. 01. Mai 2026 · 12:00–20:00 Uhr · 150 Gäste</span>
+      </div>
+      <div class="pos-grid">
+
+        <div class="pos-card" style="border-color:#c4922a; background:#fff8e1;">
+          <div class="pos-card-title" style="color:#7a4b00;">👑 Koordination / Leitung</div>
+          <div class="pos-card-desc">Einsatzleitung vor Ort<br>Ansprechpartner Kunde</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Einsatzleiter" class="slot-input">
+            <input type="text" placeholder="Stellvertretung" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+        <div class="pos-card" style="border-color:#b71c1c; background:#fff5f5;">
+          <div class="pos-card-title" style="color:#b71c1c;">🌭 Imbissstation</div>
+          <div class="pos-card-desc">Bratwurst · Currywurst · Frikadelle<br>Hähnchen · Deutsche Station</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Person 1" class="slot-input">
+            <input type="text" placeholder="Person 2" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+        <div class="pos-card" style="border-color:#e65100; background:#fff8f0;">
+          <div class="pos-card-title" style="color:#bf360c;">🔥 Griechischer Grillstand</div>
+          <div class="pos-card-desc">Gyros · Bifteki · Pita · Zaziki<br>Djuvec Reis</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Person 1" class="slot-input">
+            <input type="text" placeholder="Person 2" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+        <div class="pos-card" style="border-color:#2e7d32; background:#f1f8f1;">
+          <div class="pos-card-title" style="color:#1b5e20;">🥗 Vegetarisch / Vegan</div>
+          <div class="pos-card-desc">Drillinge mit Pilzen · Zaziki veg.<br>Vegane Alternativen</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Person 1" class="slot-input">
+            <input type="text" placeholder="Person 2" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+        <div class="pos-card" style="border-color:#0d47a1; background:#f0f4ff;">
+          <div class="pos-card-title" style="color:#0d47a1;">🍺 Zapfer / Getränke</div>
+          <div class="pos-card-desc">Biere · Weine · Prosecco<br>Soft- &amp; Mixdrinks · Aperol</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Person 1" class="slot-input">
+            <input type="text" placeholder="Person 2" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+        <div class="pos-card" style="border-color:#00796b; background:#e0f2f1;">
+          <div class="pos-card-title" style="color:#004d40;">🏃 Läufer / Service</div>
+          <div class="pos-card-desc">Gästebetreuung · Ausgabe<br>Abräumen · Nachfüllen</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Person 1" class="slot-input">
+            <input type="text" placeholder="Person 2" class="slot-input">
+            <input type="text" placeholder="Person 3" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+        <div class="pos-card" style="border-color:#f57f17; background:#fffde7;">
+          <div class="pos-card-title" style="color:#e65100;">⚡ Springer</div>
+          <div class="pos-card-desc">Flexibel · alle Stationen<br>Engpässe abdecken</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Person 1" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── ABBAU ───────────────────────────────────────── -->
+    <div class="day-section">
+      <div class="day-header" style="background:#2e7d32;">
+        <span class="day-label">📦 Abbau</span>
+        <span class="day-date">So. 02. Mai &amp; Mo. 03. Mai 2026</span>
+      </div>
+      <div class="pos-grid">
+
+        <div class="pos-card" style="border-color:#33691e; background:#f1f8e9;">
+          <div class="pos-card-title" style="color:#33691e;">🧹 Abbauteam</div>
+          <div class="pos-card-desc">Abbau Stationen · Rückbau<br>Grobreinigung · 5 Personen</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Person 1" class="slot-input">
+            <input type="text" placeholder="Person 2" class="slot-input">
+            <input type="text" placeholder="Person 3" class="slot-input">
+            <input type="text" placeholder="Person 4" class="slot-input">
+            <input type="text" placeholder="Person 5" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+        <div class="pos-card" style="border-color:#546e7a; background:#eceff1;">
+          <div class="pos-card-title" style="color:#37474f;">🏗 Schlepper (Abbau)</div>
+          <div class="pos-card-desc">Verladehilfe · Rückgabe<br>Mietmaterial LKW</div>
+          <div class="le-slots">
+            <input type="text" placeholder="Person 1" class="slot-input">
+            <input type="text" placeholder="Person 2" class="slot-input">
+          </div>
+          <button onclick="addSlot(this)" class="add-slot-btn">+ Person</button>
+        </div>
+
+        <div class="pos-card" style="border-color:#37474f; background:#f5f5f5;">
+          <div class="pos-card-title" style="color:#263238;">🚚 Uwe Delke – LKW (Abbau)</div>
+          <div class="pos-card-desc">Rücktransport Equipment<br>So. 2.5. und/oder Mo. 3.5.</div>
+          <div class="le-slots">
+            <input type="text" value="Uwe Delke" class="slot-input">
+          </div>
+          <div style="font-size:0.75rem;color:#888;margin-top:4px;">Rücktransport Uhrzeit:
+            <input type="text" placeholder="z.B. So. ab 12:00 Uhr" class="slot-input" style="margin-top:4px;">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Actions ─────────────────────────────────────── -->
+    <div class="action-bar">
+      <button class="btn-primary" onclick="exportHSPlan()">Plan exportieren / kopieren</button>
+      <button class="btn-secondary" onclick="clearHSPlan()">Felder leeren</button>
+    </div>
+    <div id="hs-output"></div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PROJEKTÜBERSICHT
+═══════════════════════════════════════════════════════ -->
+<div id="projekt" class="card">
+  <div class="card-header" style="background:#c4922a; flex-direction:column; align-items:flex-start;">
+    <h2>📁 Projektübersicht</h2>
+    <div class="meta">Auftrag AB0013 · Firmenjubiläum Hartwig &amp; Schwibbe · Solingen</div>
+  </div>
+  <div class="card-body">
+
+    <div class="section-title">Auftraggeber &amp; Event</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>Auftraggeber</strong>
+        Hartwig &amp; Schwibbe GmbH
+      </div>
+      <div class="info-item">
+        <strong>Veranstaltung</strong>
+        Firmenjubiläum
+      </div>
+      <div class="info-item">
+        <strong>Datum</strong>
+        Freitag, 01. Mai 2026
+      </div>
+      <div class="info-item">
+        <strong>Uhrzeit</strong>
+        12:00 – 20:00 Uhr
+      </div>
+      <div class="info-item">
+        <strong>Location</strong>
+        Firmengelände Solingen
+      </div>
+      <div class="info-item">
+        <strong>Gäste</strong>
+        ca. 150 Personen
+      </div>
+      <div class="info-item">
+        <strong>Angebotsnummer</strong>
+        AB0013
+      </div>
+      <div class="info-item">
+        <strong>Essenrunden</strong>
+        2–4 Runden pro Gast
+      </div>
+    </div>
+
+    <div class="section-title">Kalkulation Übersicht (AB0013)</div>
+    <table class="offer-table">
+      <thead>
+        <tr>
+          <th>Position</th>
+          <th>Menge</th>
+          <th>Einheit</th>
+          <th class="price">Preis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Deutsche Imbissstation (Bratwurst, Currywurst, Frikadelle, Hähnchen)</td>
+          <td>150</td>
+          <td>Pax · 4 Runden</td>
+          <td class="price">–</td>
+        </tr>
+        <tr>
+          <td>Griechischer Grillstand (Gyros, Bifteki, Pita, Zaziki, Djuvec Reis)</td>
+          <td>150</td>
+          <td>Pax · 4 Runden</td>
+          <td class="price">–</td>
+        </tr>
+        <tr>
+          <td>Vegetarisch / Vegan Station</td>
+          <td>150</td>
+          <td>Pax</td>
+          <td class="price">–</td>
+        </tr>
+        <tr>
+          <td>Getränkepaket (Bier, Wein, Prosecco, Soft, Mixdrinks)</td>
+          <td>150</td>
+          <td>Pax</td>
+          <td class="price">–</td>
+        </tr>
+        <tr>
+          <td>Personal (Koordination, Service, Zapfer, Springer)</td>
+          <td>–</td>
+          <td>pauschal</td>
+          <td class="price">–</td>
+        </tr>
+        <tr>
+          <td>Auf- und Abbau inkl. LKW-Transport</td>
+          <td>–</td>
+          <td>pauschal</td>
+          <td class="price">–</td>
+        </tr>
+        <tr class="total">
+          <td colspan="3">Gesamt (netto)</td>
+          <td class="price">wird ergänzt</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-title" style="margin-top:16px;">Cateringangebot</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>Deutsche Station</strong>
+        Bratwurst · Currywurst · Frikadelle · Hähnchen<br>
+        Pommes · Senf · Ketchup · Brötchen
+      </div>
+      <div class="info-item">
+        <strong>Griechische Station</strong>
+        Gyros · Bifteki · Pita · Zaziki<br>
+        Djuvec Reis · Oliven · Tsatsiki
+      </div>
+      <div class="info-item">
+        <strong>Vegetarisch / Vegan</strong>
+        Drillinge mit Pilzen (veg.)<br>
+        Zaziki veg. · vegane Würstchen
+      </div>
+      <div class="info-item">
+        <strong>Getränke</strong>
+        Afri Cola · Bluna · Wasser · Säfte<br>
+        Grand Sud Merlot &amp; Chardonnay · Prosecco<br>
+        Brinkhoff · Starnberger · Krombacher (Weizen, 0,0%)<br>
+        Lillet Wild Berry · Aperol Spritz
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ZEITPLAN
+═══════════════════════════════════════════════════════ -->
+<div id="timeline" class="card">
+  <div class="card-header" style="background:#37474f; flex-direction:column; align-items:flex-start;">
+    <h2>🗓 Zeitplan</h2>
+    <div class="meta">Di. 28.04. bis Mo. 03.05.2026 – alle Phasen im Überblick</div>
+  </div>
+  <div class="card-body">
+    <div class="timeline">
+
+      <div class="tl-item brown">
+        <div class="tl-date">Dienstag, 28. April 2026</div>
+        <div class="tl-title">🔧 Aufbau – Tag 1</div>
+        <div class="tl-desc">Anlieferung Material via Uwe Delke (LKW) · Aufbau Catering-Stationen · Aufstellung Kühlanhänger · 5 Aufbauhelfer + Schlepper</div>
+      </div>
+
+      <div class="tl-item brown">
+        <div class="tl-date">Mittwoch, 29. April 2026</div>
+        <div class="tl-title">🔧 Aufbau – Tag 2</div>
+        <div class="tl-desc">Fortsetzung Aufbau · Infrastruktur fertigstellen · Testlauf Stationen · ggf. Nachlieferungen</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">Donnerstag, 30. April 2026</div>
+        <div class="tl-title">📦 Puffer / Abschluss Aufbau</div>
+        <div class="tl-desc">Letzte Vorbereitungen · Checklisten · Team-Briefing · Alles auf Bereitschaft</div>
+      </div>
+
+      <div class="tl-item gold">
+        <div class="tl-date">Freitag, 01. Mai 2026 – FEIERTAG</div>
+        <div class="tl-title">🎉 VERANSTALTUNGSTAG – Firmenjubiläum</div>
+        <div class="tl-desc">
+          10:00 Uhr – Team-Ankunft, Endvorbereitung<br>
+          11:30 Uhr – Stationen betriebsbereit<br>
+          12:00 Uhr – Einlass · Beginn Bewirtung<br>
+          12:00–20:00 – Durchgehender Catering-Betrieb (2–4 Runden)<br>
+          20:00 Uhr – Ende · Abschlussreinigung
+        </div>
+      </div>
+
+      <div class="tl-item green">
+        <div class="tl-date">Samstag, 02. Mai 2026</div>
+        <div class="tl-title">🧹 Puffer / Grobreinigung</div>
+        <div class="tl-desc">Erste Aufräumarbeiten nach Event · optional</div>
+      </div>
+
+      <div class="tl-item green">
+        <div class="tl-date">Sonntag, 02. Mai 2026</div>
+        <div class="tl-title">📦 Abbau – Tag 1</div>
+        <div class="tl-desc">Abbau Catering-Stationen · Rückbau Infrastruktur · Grobreinigung der Flächen · Verladehilfe LKW (Uwe Delke)</div>
+      </div>
+
+      <div class="tl-item green">
+        <div class="tl-date">Montag, 03. Mai 2026</div>
+        <div class="tl-title">📦 Abbau – Tag 2 · Abschluss</div>
+        <div class="tl-desc">Rücktransport Equipment · Rückgabe Mietmaterial · Endabnahme · Projekt abgeschlossen</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     WHATSAPP-VORLAGEN
+═══════════════════════════════════════════════════════ -->
+<div id="whatsapp" class="card">
+  <div class="card-header" style="background:#25d366; flex-direction:column; align-items:flex-start;">
+    <h2>💬 WhatsApp-Vorlagen</h2>
+    <div class="meta">Tippen auf Block oder Button zum Kopieren</div>
+  </div>
+  <div class="card-body">
+
+    <div class="section-title">Aufbau &amp; Logistik</div>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Aufbauteam (Di. 28.4. &amp; Mi. 29.4.) <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+wir haben am *1. Mai* ein Firmenjubiläum in *Solingen* (150 Gäste) und beginnen den *Aufbau bereits Dienstag und Mittwoch (28./29. April)*.
+
+📌 Einsatz Aufbau:
+• *Dienstag, 28. April* und/oder *Mittwoch, 29. April*
+• Aufbau Catering-Stationen, Infrastruktur, Kühlanhänger
+• Anfahrt Firmengelände Solingen
+• 5 Personen gesucht
+
+Hast du an einem oder beiden Tagen Zeit? Bitte kurz Rückmeldung 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Schlepper / Transporthilfe <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+kurze Anfrage: Kannst du *Dienstag 28.4. und/oder Mittwoch 29.4.* als *Transporthilfe / Schlepper* bei uns einspringen?
+
+📌 Details:
+• Aufbau für ein Firmenjubiläum (150 Gäste) in *Solingen*
+• Entladen, Schleppen, Aufstellen von Stationen und Equipment
+• Genaue Zeiten gebe ich noch durch
+
+Interesse? Kurze Antwort reicht 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Uwe Delke – LKW <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey Uwe 👋
+
+ich wollte fragen ob du für uns *LKW fahren* kannst – wir haben ein größeres Event:
+
+📌 Firmenjubiläum Solingen, 150 Gäste
+• *Aufbau: Dienstag 28.4. und/oder Mittwoch 29.4.* – Anlieferung Equipment/Catering
+• *Veranstaltungstag: Freitag, 1. Mai* – ggf. Nachlieferung
+• *Abbau: Sonntag 2.5. und/oder Montag 3.5.* – Rücktransport
+
+Kannst du an den Tagen? Gib mir kurz Bescheid welche du schaffen kannst 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="section-title">Veranstaltungstag – 01.05.2026</div>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Koordination / Einsatzleitung <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+ich brauche dich als *Einsatzleitung* für ein Firmenjubiläum am *1. Mai (Feiertag)* in *Solingen* – 150 Gäste.
+
+📌 Details:
+• Zeit: *10:00–20:00 Uhr* (inkl. Vorlauf)
+• Aufgabe: Koordination aller Stationen, Ansprechpartner für Kunden
+• Mehrere Catering-Stationen (Imbiss, Grill, Vegan, Getränke)
+• Team: ca. 10–12 Personen vor Ort
+
+Kannst du das übernehmen? Kurze Rückmeldung 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Imbissstation / Deutsche Station <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+ich suche jemanden für die *Imbissstation* am *1. Mai* in *Solingen* (Firmenjubiläum, 150 Gäste).
+
+📌 Details:
+• Zeit: *12:00–20:00 Uhr*
+• Station: Bratwurst, Currywurst, Frikadelle, Hähnchen
+• Alles wird vor Ort zubereitet – Equipment und Material sind gestellt
+• 2–4 Essenrunden pro Gast
+
+Hast du Erfahrung und Zeit? Würde mich freuen! 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Griechischer Grillstand <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+ich suche jemanden mit *Grillerfahrung* für den *griechischen Stand* am *1. Mai* in *Solingen*.
+
+📌 Details:
+• Zeit: *12:00–20:00 Uhr*
+• Station: Gyros, Bifteki, Pita, Zaziki, Djuvec Reis
+• Firmenjubiläum – 150 Gäste · mehrere Essenrunden
+• Equipment gestellt, du kochst und gibst aus
+
+Kannst du das? Kurze Rückmeldung 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Zapfer / Getränkeausgabe <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+kannst du am *1. Mai* als *Zapfer / Getränkeausgabe* bei einem Firmenjubiläum in *Solingen* einspringen? 150 Gäste.
+
+📌 Details:
+• Zeit: *12:00–20:00 Uhr*
+• Getränke: Biere (Brinkhoff, Starnberger, Krombacher), Weine, Prosecco, Soft-/Mixdrinks, Aperol Spritz
+• Bierwagen + Ausgabestation wird gestellt
+• Alles vorbereitet, du zapfst und gibst aus
+
+Hast du Zeit und Lust? Bitte kurz melden 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Servicekraft / Läufer (allgemein) <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+Anfrage für den *1. Mai (Feiertag)* – Firmenjubiläum in *Solingen*, 150 Gäste.
+
+📌 Details:
+• Zeit: *12:00–20:00 Uhr*
+• Aufgabe: Service / Gästebetreuung auf dem Gelände
+• Durchgehendes Catering mit mehreren Stationen
+• Verpflegung vor Ort für uns selbstverständlich
+
+Kannst du? Kurze Rückmeldung reicht 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+    <div class="section-title">Abbau</div>
+
+    <div class="wa-block" onclick="copyText(this)">
+      <div class="wa-label">An: Abbauteam (So. 2.5. &amp; Mo. 3.5.) <span class="copy-hint">Tippen zum Kopieren</span></div>
+      <div class="wa-text">Hey [Name] 👋
+
+ich brauche noch Leute für den *Abbau* nach dem Firmenjubiläum in *Solingen* (1. Mai, 150 Gäste).
+
+📌 Einsatz:
+• *Sonntag, 2. Mai* und/oder *Montag, 3. Mai*
+• Abbau Catering-Stationen, Rückbau Infrastruktur, Grobreinigung der Flächen
+• Rückgabe Mietmaterial, Verladehilfe für LKW
+• 5 Personen gesucht
+
+Wärst du an einem oder beiden Tagen dabei?
+Kurze Rückmeldung 🙏</div>
+    </div>
+    <button class="copy-btn" onclick="copyText(this.previousElementSibling)">Kopieren</button>
+
+  </div>
+</div>
+
+<footer>
+  Lucky Event · Hartwig &amp; Schwibbe Firmenjubiläum 01.05.2026 · AB0013 ·
+  <a href="personalplanung.html" style="color:#aaa;">← Zur Gesamtplanung</a>
+</footer>
+
+<!-- ═══════ JAVASCRIPT ═══════ -->
+<script>
+  /* ── Clipboard copy for WA blocks ─────────────────────── */
+  function copyText(el) {
+    const textEl = el.querySelector('.wa-text');
+    const text = textEl ? textEl.innerText : '';
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const label = el.querySelector('.copy-hint');
+      if (label) {
+        const orig = label.innerText;
+        label.innerText = '✅ Kopiert!';
+        setTimeout(() => { label.innerText = orig; }, 1800);
+      }
+    }).catch(() => {
+      const range = document.createRange();
+      range.selectNodeContents(textEl);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      document.execCommand('copy');
+    });
+  }
+
+  /* ── Add person slot to a position card ───────────────── */
+  function addSlot(btn) {
+    const container = btn.previousElementSibling;
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.placeholder = 'Person ' + (container.children.length + 1);
+    inp.className = 'slot-input';
+    container.appendChild(inp);
+    inp.focus();
+  }
+
+  /* ── Export full staffing plan as text ────────────────── */
+  function exportHSPlan() {
+    let text = '🎉 EINSATZPLAN – HARTWIG & SCHWIBBE\n';
+    text += 'Firmenjubiläum · 01.05.2026 · Solingen · 150 Gäste\n';
+    text += '─'.repeat(38) + '\n';
+
+    const sections = [
+      { selector: '.day-section:nth-child(1)', label: '🔧 AUFBAU (Di. 28.04. & Mi. 29.04.)' },
+      { selector: '.day-section:nth-child(2)', label: '🎉 VERANSTALTUNGSTAG (Fr. 01.05., 12–20 Uhr)' },
+      { selector: '.day-section:nth-child(3)', label: '📦 ABBAU (So. 02.05. & Mo. 03.05.)' },
+    ];
+
+    document.querySelectorAll('.day-section').forEach((section, si) => {
+      const dayLabel = section.querySelector('.day-label');
+      const dayDate  = section.querySelector('.day-date');
+      text += `\n${dayLabel ? dayLabel.innerText : 'Phase ' + (si+1)}`;
+      text += dayDate ? ' – ' + dayDate.innerText : '';
+      text += '\n' + '─'.repeat(34) + '\n';
+
+      section.querySelectorAll('.pos-card').forEach(card => {
+        const title = card.querySelector('.pos-card-title');
+        const inputs = card.querySelectorAll('.slot-input');
+        const names = Array.from(inputs).map(i => i.value.trim()).filter(Boolean);
+        if (title) text += `\n${title.innerText}:\n`;
+        text += names.length ? names.map(n => `  • ${n}`).join('\n') : '  – (offen)';
+        text += '\n';
+      });
+    });
+
+    const out = document.getElementById('hs-output');
+    out.style.display = 'block';
+    out.textContent = text;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('[onclick="exportHSPlan()"]');
+      if (btn) {
+        btn.textContent = '✅ Kopiert!';
+        setTimeout(() => { btn.textContent = 'Plan exportieren / kopieren'; }, 2000);
+      }
+    }).catch(() => {});
+  }
+
+  /* ── Clear all person slots ───────────────────────────── */
+  function clearHSPlan() {
+    if (!confirm('Alle Felder wirklich leeren?')) return;
+    document.querySelectorAll('#personalplanung .slot-input').forEach(inp => {
+      if (inp.value !== 'Uwe Delke') inp.value = '';
+    });
+    const out = document.getElementById('hs-output');
+    out.style.display = 'none';
+    out.textContent = '';
+  }
+</script>
+
+</body>
+</html>
