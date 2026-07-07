@@ -1,0 +1,86 @@
+# ===================================================================
+# Produktliste fuer die marktguru-Suche
+# -------------------------------------------------------------------
+# So pflegst du diese Datei:
+#   - Eine Zeile = ein Suchbegriff (so, wie du es bei marktguru
+#     eingeben wuerdest, z.B. eine Marke oder ein Produktname).
+#   - Zeilen, die mit '#' beginnen, sind nur Ueberschriften/Notizen
+#     und werden NICHT gesucht.
+#   - Neues Produkt? Einfach eine neue Zeile dazu. Speichern. Fertig.
+#
+# Tipp: Markennamen funktionieren am besten (z.B. "jim beam").
+# ===================================================================
+
+# Bier
+krombacher
+erdinger
+radler
+alster
+fassbrause
+
+# Softdrinks & Wasser
+coca cola
+fanta
+sprite
+afri cola
+bluna
+mineralwasser
+vita malz
+bitter lemon
+tonic water
+ginger ale
+energy drink
+
+# Saefte
+orangensaft
+apfelsaft
+kirschsaft
+maracujasaft
+bananensaft
+schorle
+
+# Spirituosen
+jack daniels
+jim beam
+ballantine's
+glenfiddich
+mariacron
+osborne
+baileys
+sambuca
+amaretto
+gin
+licor 43
+bacardi
+havana club
+rum
+grappa
+williams
+tequila
+gorbatschow
+absolut wodka
+
+# Wein & Sekt
+weißwein
+rotwein
+freixenet
+aperol
+
+# Heissgetraenke / Bar-Zutaten
+kaffee
+espresso
+kakao
+tee
+sirup
+
+# -------------------------------------------------------------------
+# NICHT aufgenommen (das sind fertig gemixte Getraenke aus eurer
+# Karte - die gibt es im Supermarkt nicht als Produkt, nur ihre
+# Zutaten, die oben schon abgedeckt sind):
+#   Caipirinha, Tequila Sunrise, Sex on the Beach, Mai Tai,
+#   Long Island Iced Tea, Cuba Libre, Hugo, Aperol Spritz
+#   Espresso doppelt, Milchkaffee, Cappuccino, Latte Macchiato
+#
+# UNKLAR (bitte sag mir, was das ist, dann nehme ich es passend auf):
+#   Atos, Pefkochori, Thessaloniki, Carlos, Pott
+# -------------------------------------------------------------------
