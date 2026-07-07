@@ -209,3 +209,5 @@ __marimo__/
 # marktguru: lokale Schluessel (NICHT hochladen!) und Ergebnis-Dateien
 marktguru_keys.txt
 marktguru_angebote.csv
+angebote.db
+collect.log
