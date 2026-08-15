@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashflow - Mein Dashboard</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .cashflow-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        .cashflow-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+        .cashflow-header h1 { color: #1a1a2e; }
+        .unt-auswahl { display: flex; gap: 0.5rem; align-items: center; }
+        .unt-auswahl select { padding: 0.6rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; min-width: 200px; }
+        .unt-auswahl button { padding: 0.6rem 1rem; background: #1a1a2e; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+        .unt-auswahl button:hover { background: #16213e; }
+
+        .summen { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .summe { background: #fff; padding: 1.25rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .summe-label { color: #666; font-size: 0.9rem; }
+        .summe-wert { font-size: 1.75rem; font-weight: bold; margin-top: 0.25rem; }
+        .summe-einnahme .summe-wert { color: #1e7e34; }
+        .summe-ausgabe .summe-wert { color: #c73650; }
+        .summe-saldo .summe-wert { color: #1a1a2e; }
+
+        .eintrag-form { background: #fff; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 2rem; }
+        .eintrag-form h2 { margin-bottom: 1rem; color: #1a1a2e; font-size: 1.2rem; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem; }
+        .form-row input, .form-row select { padding: 0.6rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; font-family: inherit; width: 100%; }
+        .eintrag-form button { padding: 0.7rem 1.5rem; background: #e94560; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+
+        .eintrag-tabelle { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-size: 0.85rem; text-transform: uppercase; color: #666; }
+        .betrag-einnahme { color: #1e7e34; font-weight: 500; }
+        .betrag-ausgabe { color: #c73650; font-weight: 500; }
+        .loesch-btn { background: none; border: none; color: #c73650; cursor: pointer; font-size: 1.1rem; }
+        .leer-hinweis { padding: 2rem; text-align: center; color: #888; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Mein Dashboard</div>
+            <ul>
+                <li><a href="../index.html">Übersicht</a></li>
+                <li><a href="../index.html#projekte">Projekte</a></li>
+                <li><span id="user-email" class="user-email"></span></li>
+                <li><a href="#" id="logout-link">Abmelden</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="cashflow-wrap">
+        <a href="../index.html" class="zurueck">← Zurück zum Dashboard</a>
+
+        <div class="cashflow-header">
+            <h1>💰 Cashflow</h1>
+            <div class="unt-auswahl">
+                <select id="unt-select"></select>
+                <button id="unt-neu">+ Neu</button>
+            </div>
+        </div>
+
+        <div class="summen">
+            <div class="summe summe-einnahme">
+                <div class="summe-label">Einnahmen</div>
+                <div class="summe-wert" id="summe-einnahmen">0,00 €</div>
+            </div>
+            <div class="summe summe-ausgabe">
+                <div class="summe-label">Ausgaben</div>
+                <div class="summe-wert" id="summe-ausgaben">0,00 €</div>
+            </div>
+            <div class="summe summe-saldo">
+                <div class="summe-label">Saldo</div>
+                <div class="summe-wert" id="summe-saldo">0,00 €</div>
+            </div>
+        </div>
+
+        <form class="eintrag-form" id="eintrag-form">
+            <h2>Neuer Eintrag</h2>
+            <div class="form-row">
+                <input type="date" id="datum" required>
+                <select id="typ" required>
+                    <option value="einnahme">Einnahme</option>
+                    <option value="ausgabe">Ausgabe</option>
+                </select>
+                <input type="number" id="betrag" step="0.01" min="0" placeholder="Betrag (€)" required>
+                <input type="text" id="beschreibung" placeholder="Beschreibung">
+            </div>
+            <button type="submit">Eintragen</button>
+        </form>
+
+        <div class="eintrag-tabelle">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Typ</th>
+                        <th>Beschreibung</th>
+                        <th style="text-align:right;">Betrag</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="eintrag-body"></tbody>
+            </table>
+            <div class="leer-hinweis" id="leer-hinweis" style="display:none;">
+                Noch keine Eintraege fuer diese Unternehmung.
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mein Dashboard</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../config.js"></script>
+    <script src="../auth.js"></script>
+    <script src="cashflow.js"></script>
+</body>
+</html>

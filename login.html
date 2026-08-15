@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mein Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body.login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+        }
+        .login-box {
+            background: #fff;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-box h1 {
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+        .login-box p {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        .login-box label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 0.7rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .login-box input:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 0.8rem;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .login-box button:hover {
+            background: #c73650;
+        }
+        .login-box button:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+        .login-fehler {
+            color: #c73650;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            min-height: 1.2em;
+        }
+    </style>
+</head>
+<body class="login-page">
+    <div class="login-box">
+        <h1>Anmelden</h1>
+        <p>Willkommen zurueck. Bitte melde dich an.</p>
+
+        <form id="login-form">
+            <label for="email">E-Mail</label>
+            <input type="email" id="email" required autocomplete="username">
+
+            <label for="password">Passwort</label>
+            <input type="password" id="password" required autocomplete="current-password">
+
+            <button type="submit" id="login-btn">Einloggen</button>
+            <div class="login-fehler" id="fehler"></div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Wenn schon eingeloggt: direkt zum Dashboard
+        window.auth.client.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        const form = document.getElementById('login-form');
+        const fehler = document.getElementById('fehler');
+        const btn = document.getElementById('login-btn');
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            fehler.textContent = '';
+            btn.disabled = true;
+            btn.textContent = 'Einloggen...';
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { error } = await window.auth.login(email, password);
+
+            if (error) {
+                fehler.textContent = 'Login fehlgeschlagen: ' + error.message;
+                btn.disabled = false;
+                btn.textContent = 'Einloggen';
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
